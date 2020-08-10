@@ -1,0 +1,53 @@
+<PDFComposition>
+    <Metadata>
+        <Author>Robin</Author>
+    </Metadata>
+
+    <LayerTree displayOnlyOnVisiblePages="true">
+        <Layer id="background" name="Background chart"/>
+        <Layer id="nelson" name="Nelson"/>
+        <Layer id="collingwood" name="Collingwood"/>
+    </LayerTree>
+
+    <Page id="page_1">
+        <DPI>72</DPI>
+        <Width>841.698</Width>
+        <Height>595.14</Height>
+        <Georeferencing id="georeferenced">
+            <SRS>EPSG:4326</SRS>
+            <ControlPoint x="1" y="1" GeoY="50" GeoX="-0.8"/>
+            <ControlPoint x="1" y="595.14" GeoY="50.4" GeoX="-0.8"/>
+            <ControlPoint x="841.698" y="1" GeoY="50" GeoX="-0.1"/>
+            <ControlPoint x="841.698" y="595.14" GeoY="50.4" GeoX="-0.1"/>
+        </Georeferencing>
+
+        <Content>
+            <IfLayerOn layerId="background">
+                <Raster dataset="Chart_Reprojected_Clip1.tif" georeferencingId="georeferenced"/>
+                <Raster dataset="Chart_Reprojected_Clip2a.tif" georeferencingId="georeferenced"/>
+            </IfLayerOn>
+
+
+            <IfLayerOn layerId="nelson">
+                <Vector dataset="Nelson_Line.geojson" layer="Nelson_Line" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_Points_10mins.geojson" layer="Nelson_Points_10mins" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_PointLabels_Hourly.geojson" layer="Nelson_PointLabels_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+                <VectorLabel dataset="Nelson_FirstPoint.geojson" layer="Nelson_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Nelson",c:#bd1b44,s:24pt,p:2,dy:10mm,bo:1)'/>
+            </IfLayerOn>
+
+
+            <IfLayerOn layerId="collingwood">
+                <Vector dataset="Collingwood_Line.geojson" layer="Collingwood_Line" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'>
+                    <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Collingwood_PointLabels_Hourly.geojson" layer="Collingwood_PointLabels_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+                <Vector dataset="Collingwood_Points_10mins.geojson" layer="Collingwood_Points_10mins" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'/>
+                <VectorLabel dataset="Collingwood_FirstPoint.geojson" layer="Collingwood_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Collingwood",c:#0d0d8e,s:24pt,p:2,dy:-10mm,bo:1)'/>
+            </IfLayerOn>
+
+        </Content>
+    </Page>
+
+</PDFComposition>
