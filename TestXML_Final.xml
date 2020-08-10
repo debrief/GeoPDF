@@ -24,7 +24,7 @@
         <Content>
             <IfLayerOn layerId="background">
                 <Raster dataset="Chart_Reprojected_Clip1.tif" georeferencingId="georeferenced"/>
-                <Raster dataset="Chart_Reprojected_Clip2a.tif" georeferencingId="georeferenced"/>
+                <Raster dataset="Chart_Reprojected_Clip2.tif" georeferencingId="georeferenced"/>
             </IfLayerOn>
 
 
