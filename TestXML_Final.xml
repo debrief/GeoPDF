@@ -39,11 +39,11 @@
 
 
             <IfLayerOn layerId="collingwood">
-                <Vector dataset="Collingwood_Line.geojson" layer="Collingwood_Line" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'>
+                <Vector dataset="Collingwood_Line.geojson" layer="Collingwood_Line" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+                <VectorLabel dataset="Collingwood_PointLabels_Hourly.geojson" layer="Collingwood_PointLabels_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+                <Vector dataset="Collingwood_Points_10mins.geojson" layer="Collingwood_Points_10mins" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
                     <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
                 </Vector>
-                <VectorLabel dataset="Collingwood_PointLabels_Hourly.geojson" layer="Collingwood_PointLabels_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
-                <Vector dataset="Collingwood_Points_10mins.geojson" layer="Collingwood_Points_10mins" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'/>
                 <VectorLabel dataset="Collingwood_FirstPoint.geojson" layer="Collingwood_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Collingwood",c:#0d0d8e,s:24pt,p:2,dy:-10mm,bo:1)'/>
             </IfLayerOn>
 
