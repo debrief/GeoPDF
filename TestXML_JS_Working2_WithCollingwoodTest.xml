@@ -1,0 +1,370 @@
+<PDFComposition>
+    <Metadata>
+        <Author>Robin</Author>
+    </Metadata>
+
+    <Javascript>
+var timestamps = null;
+    var startVal = null;
+    var endVal = null;
+    var intervalVal = null;
+    var animate = null;
+    var progress = null;
+
+    function runAnimation() {
+        progress = app.thermometer;
+        animate = app.setInterval(&quot;animateTimestamps()&quot;, intervalVal);
+        animate.position = startVal;
+
+    } // function runAnimation()
+
+    function getOCGByName(name) {
+        var ocgs = this.getOCGs();
+
+        for (var i = 0; i &lt; ocgs.length; i += 1) {
+            if (ocgs[i].name == name) {
+                return ocgs[i];
+            }
+        }
+
+        return false;
+    }
+
+    function animateTimestamps() {
+        // called repeatedly by the app to run the animation
+
+        var ocgs = this.getOCGs();
+        var index = Math.abs(animate.position - startVal);
+
+        if (progress.cancelled) {
+            // user cancelled
+            app.clearInterval(animate);
+            progress.end();
+            progerss = null;
+        } else if (animate.position &lt; startVal &amp;&amp; animate.position &lt; endVal) {
+            // end of animation
+            app.clearInterval(animate);
+            progress.end();
+            progerss = null;
+        } else if (animate.position &gt; startVal &amp;&amp; animate.position &gt; endVal) {
+            // end of animation
+            app.clearInterval(animate);
+            progress.end();
+            progerss = null;
+        } else if (animate.position == startVal) {
+            // start of animation
+
+            for (var i = 0; i &lt; timestamps.length; i += 1) {
+                for (var j = 0; j &lt; timestamps[i].ocgs.length; j += 1) {
+                    ocg_name = timestamps[i].ocgs[j];
+                    ocg = getOCGByName(ocg_name);
+                    ocg.state = false;
+                }
+            }
+
+            progress.duration = Math.abs(startVal - endVal);
+            progress.begin();
+
+            for (var i = 0; i &lt; timestamps[animate.position].ocgs.length; i += 1) {
+                ocg_name = timestamps[animate.position].ocgs[i];
+                ocg = getOCGByName(ocg_name);
+                ocg.state = true;
+            }
+
+            progress.value = index;
+            progress.text = timestamps[animate.position].name;
+
+            animate.position += stepVal;
+        } else {
+            for (var i = 0; i &lt; timestamps[animate.position].ocgs.length; i += 1) {
+                ocg_name = timestamps[animate.position].ocgs[i];
+                ocg = getOCGByName(ocg_name);
+                ocg.state = true;
+            }
+
+            progress.value = index;
+            progress.text = timestamps[animate.position].name;
+
+            animate.position += stepVal;
+        }
+
+    } // function animateTimestamps()
+    </Javascript>
+
+    <LayerTree displayOnlyOnVisiblePages="true">
+        <Layer id="background" name="Background chart"/>
+        <Layer id="1995-12-12 05:00" name="1995-12-12 05:00">
+            <Layer id="Nelson 1995-12-12 05:00" name="Nelson"/>
+            
+        </Layer>
+        <Layer id="1995-12-12 06:00" name="1995-12-12 06:00">
+            <Layer id="nelson 1" name="Nelson"/>
+            <Layer id="Collingwood 1995-12-12 05:00" name="Collingwood0"/>
+        </Layer>
+        <Layer id="nelson 2" name="1995-12-12 07:00"/>
+        <Layer id="nelson 3" name="1995-12-12 08:00"/>
+        <Layer id="nelson 4" name="1995-12-12 09:00"/>
+        <Layer id="nelson 5" name="1995-12-12 10:00"/>
+        <Layer id="nelson 6" name="1995-12-12 11:00"/>
+    </LayerTree>
+
+    <Page id="page_1">
+        <DPI>72</DPI>
+        <Width>841.698</Width>
+        <Height>595.14</Height>
+        <Georeferencing id="georeferenced">
+            <SRS>EPSG:4326</SRS>
+            <ControlPoint x="1" y="1" GeoY="50" GeoX="-0.8"/>
+            <ControlPoint x="1" y="595.14" GeoY="50.4" GeoX="-0.8"/>
+            <ControlPoint x="841.698" y="1" GeoY="50" GeoX="-0.1"/>
+            <ControlPoint x="841.698" y="595.14" GeoY="50.4" GeoX="-0.1"/>
+        </Georeferencing>
+
+        <Content>
+            <IfLayerOn layerId="background">
+                <Raster dataset="Chart_Reprojected_Clip1.tif" georeferencingId="georeferenced"/>
+                <Raster dataset="Chart_Reprojected_Clip2.tif" georeferencingId="georeferenced"/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="1995-12-12 05:00">
+                <IfLayerOn layerId="Nelson 1995-12-12 05:00">
+                    <Vector dataset="Nelson_Lines_Split/hour_0.geojson" layer="hour_0" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                    <Vector dataset="Nelson_10min_Split/hour_0.geojson" layer="hour_0" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                        <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                    </Vector>
+                    <VectorLabel dataset="Nelson_Hourly_Split/hour_0.geojson" layer="hour_0" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+                    <VectorLabel dataset="Nelson_FirstPoint.geojson" layer="Nelson_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Nelson",c:#bd1b44,s:24pt,p:2,dy:10mm,bo:1)'/>
+                </IfLayerOn>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="1995-12-12 06:00">
+                <IfLayerOn layerId="nelson 1">
+                    <Vector dataset="Nelson_Lines_Split/hour_1.geojson" layer="hour_1" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                    <Vector dataset="Nelson_10min_Split/hour_1.geojson" layer="hour_1" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                        <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                    </Vector>
+                    <VectorLabel dataset="Nelson_Hourly_Split/hour_1.geojson" layer="hour_1" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+                </IfLayerOn>
+
+                <IfLayerOn layerId="Collingwood 1995-12-12 05:00">
+                    <Vector dataset="Collingwood_Line.geojson" layer="Collingwood_Line" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+                </IfLayerOn>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="nelson 2">
+                <Vector dataset="Nelson_Lines_Split/hour_2.geojson" layer="hour_2" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_10min_Split/hour_2.geojson" layer="hour_2" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly_Split/hour_2.geojson" layer="hour_2" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="nelson 3">
+                <Vector dataset="Nelson_Lines_Split/hour_3.geojson" layer="hour_3" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_10min_Split/hour_3.geojson" layer="hour_3" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly_Split/hour_3.geojson" layer="hour_3" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="nelson 4">
+                <Vector dataset="Nelson_Lines_Split/hour_4.geojson" layer="hour_4" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_10min_Split/hour_4.geojson" layer="hour_4" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly_Split/hour_4.geojson" layer="hour_4" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="nelson 5">
+                <Vector dataset="Nelson_Lines_Split/hour_5.geojson" layer="hour_5" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_10min_Split/hour_5.geojson" layer="hour_5" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly_Split/hour_5.geojson" layer="hour_5" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="nelson 6">
+                <Vector dataset="Nelson_Lines_Split/hour_6.geojson" layer="hour_6" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+                <Vector dataset="Nelson_10min_Split/hour_6.geojson" layer="hour_6" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly_Split/hour_6.geojson" layer="hour_6" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+            </IfLayerOn>
+
+        </Content>
+    </Page>
+
+
+    <Outline>
+        <OutlineItem name="Run animation" bold="true">
+            <Actions>
+                <JavascriptAction>function getAnimationConfig(doc) {
+    // collect animation config info
+
+    var configDialog = {
+        initialize: function (dialog) {
+            var startVals = {};
+            var endVals = {};
+            for (var i = 0; i&lt; timestamps.length; i += 1) {
+                var prefix;
+                if (timestamps.length &lt; 10)
+                    prefix = util.printf(&quot;%d: &quot;, i);
+                else if (timestamps.length &lt; 100)
+                    prefix = util.printf(&quot;%02d: &quot;, i);
+                else
+                    prefix = util.printf(&quot;%03d: &quot;, i);
+
+                // selected values are positive, all others must be positive
+                if (i == 0) {
+                    // default value
+                    startVals[prefix + timestamps[i].name] = i + 1;
+                } else {
+                    startVals[prefix + timestamps[i].name] = -(i + 1);
+                }
+                if (i == timestamps.length - 1) {
+                    // default value
+                    endVals[prefix + timestamps[i].name] = i + 1;
+                } else {
+                    endVals[prefix + timestamps[i].name] = -(i + 1);
+                }
+            }
+
+            dialog.load({
+                fld1: startVals,
+                fld2: endVals,
+                fld3: &quot;1000&quot;
+            });
+        },
+        commit: function (dialog) // called when OK is clicked
+        {
+            var results = dialog.store();
+            for (prop in results[&quot;fld1&quot;]) {
+                var val = results[&quot;fld1&quot;][prop];
+                if (val &gt; 0)
+                    startVal = val - 1;
+            }
+            for (prop in results[&quot;fld2&quot;]) {
+                var val = results[&quot;fld2&quot;][prop];
+                if (val &gt; 0)
+                    endVal = val - 1;
+            }
+            intervalVal = results[&quot;fld3&quot;];
+        },
+        description: {
+            name: &quot;Configure Timestamp Animation&quot;,
+            align_children: &quot;align_left&quot;,
+            width: 350,
+            height: 200,
+            elements: [{
+                    type: &quot;cluster&quot;,
+                    name: &quot;&quot;,
+                    align_children: &quot;align_left&quot;,
+                    elements: [{
+                            type: &quot;view&quot;,
+                            align_children: &quot;align_row&quot;,
+                            elements: [{
+                                    type: &quot;static_text&quot;,
+                                    name: &quot;Start: &quot;
+                                },
+                                {
+                                    item_id: &quot;fld1&quot;, // must be 4 characters
+                                    type: &quot;popup&quot;,
+                                    alignment: &quot;align_fill&quot;,
+                                    width: 300,
+                                    height: 24
+                                }
+                            ]
+                        },
+                        {
+                            type: &quot;view&quot;,
+                            align_children: &quot;align_row&quot;,
+                            elements: [{
+                                    type: &quot;static_text&quot;,
+                                    name: &quot;End: &quot;
+                                },
+                                {
+                                    item_id: &quot;fld2&quot;, // must be 4 characters
+                                    type: &quot;popup&quot;,
+                                    alignment: &quot;align_fill&quot;,
+                                    width: 300,
+                                    height: 24
+                                }
+                            ]
+                        },
+                        {
+                            type: &quot;view&quot;,
+                            align_children: &quot;align_row&quot;,
+                            elements: [{
+                                    type: &quot;static_text&quot;,
+                                    name: &quot;Interval: &quot;
+                                },
+                                {
+                                    item_id: &quot;fld3&quot;, // must be 4 characters
+                                    type: &quot;edit_text&quot;,
+                                    alignment: &quot;align_fill&quot;,
+                                    width: 40,
+                                    height: 24
+                                },
+                                {
+                                    type: &quot;static_text&quot;,
+                                    name: &quot;milliseconds&quot;
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    alignment: &quot;align_right&quot;,
+                    type: &quot;ok_cancel&quot;,
+                    ok_name: &quot;Ok&quot;,
+                    cancel_name: &quot;Cancel&quot;
+                }
+            ]
+        }
+    }; // var configDialog
+    timestamps = [{
+        name: &quot;05:00&quot;,
+        ocgs: [&quot;1995-12-12 05:00&quot;]
+    }, {
+        name: &quot;06:00&quot;,
+        ocgs: [&quot;1995-12-12 06:00&quot;]
+    }, {
+        name: &quot;07:00&quot;,
+        ocgs: [&quot;1995-12-12 07:00&quot;]
+    }, {
+        name: &quot;08:00&quot;,
+        ocgs: [&quot;1995-12-12 08:00&quot;]
+    }, {
+        name: &quot;09:00&quot;,
+        ocgs: [&quot;1995-12-12 09:00&quot;]
+    }, {
+        name: &quot;10:00&quot;,
+        ocgs: [&quot;1995-12-12 10:00&quot;]
+    }, {
+        name: &quot;11:00&quot;,
+        ocgs: [&quot;1995-12-12 11:00&quot;]
+    }];
+
+    var result = app.execDialog(configDialog);
+    return result;
+
+} // function getAnimationConfig()
+
+
+var result = getAnimationConfig(this);
+
+if (result == &quot;ok&quot;) {
+    var stepVal = 0;
+    if (startVal &lt; endVal)
+        stepVal = 1;
+    else
+        stepVal = -1;
+
+
+    runAnimation();
+}</JavascriptAction>
+            </Actions>
+        </OutlineItem>
+    </Outline>
+
+</PDFComposition>
