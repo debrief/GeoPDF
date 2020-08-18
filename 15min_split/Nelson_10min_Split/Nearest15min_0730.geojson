@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "Nearest15min_0730",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "rowid": 151.0, "state_id": "8982a131bf0f437e954c4ddfb6e54ace", "time": "1995\/12\/12 07:30:00", "sensor_id": "0406f75c63db4081839be289ed3a952d", "elevation": 0.0, "heading": null, "course": 0.87091929674516999, "speed": 1.0289, "source_id": "fb6141ddc9724198abbefc50bfcf5296", "privacy_id": null, "remarks": null, "created_da": "2020\/08\/03 10:07:41", "Nearest15min": "0730" }, "geometry": { "type": "Point", "coordinates": [ -0.577336080296032, 50.145002782027078 ] } },
+{ "type": "Feature", "properties": { "rowid": 161.0, "state_id": "82e1f183e8c04053a11fef848df8523e", "time": "1995\/12\/12 07:40:00", "sensor_id": "0406f75c63db4081839be289ed3a952d", "elevation": 0.0, "heading": null, "course": 2.2828906616085831, "speed": 1.0289, "source_id": "fb6141ddc9724198abbefc50bfcf5296", "privacy_id": null, "remarks": null, "created_da": "2020\/08\/03 10:07:41", "Nearest15min": "0730" }, "geometry": { "type": "Point", "coordinates": [ -0.551830941979237, 50.138333282027048 ] } }
+]
+}

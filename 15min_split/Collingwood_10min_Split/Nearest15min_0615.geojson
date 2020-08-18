@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Nearest15min_0615",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "rowid": 78.0, "state_id": "61c0079e58ba42ffa71d41576fc419bc", "time": "1995\/12\/12 06:20:00", "sensor_id": "d359b91409d24d8dbf9472cdc0712948", "elevation": 0.0, "heading": null, "course": 5.7718038363452484, "speed": 1.8006, "source_id": "65c5fc51161745bb8262258a5f4254c4", "privacy_id": null, "remarks": null, "created_da": "2020\/08\/03 10:07:07", "auxiliary_": null, "Nearest15min": "0615" }, "geometry": { "type": "Point", "coordinates": [ -0.542530912856745, 50.10116273875083 ] } }
+]
+}
