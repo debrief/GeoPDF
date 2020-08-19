@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "split_1145",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "rowid": 403, "state_id": "87593c511021402f9fbf5419747702c6", "time": "1995\/12\/12 11:45:00.000", "sensor_id": "d359b91409d24d8dbf9472cdc0712948", "elevation": 0.0, "heading": null, "course": 6.2692226731636316, "speed": 1.8006, "source_id": "65c5fc51161745bb8262258a5f4254c4", "privacy_id": null, "remarks": null, "created_da": "2020\/08\/03 10:07:07.000", "forsplitti": null, "split": "1145", "auxiliary_": null }, "geometry": { "type": "Point", "coordinates": [ -0.624941117579954, 50.267173838750843 ] } }
+]
+}
