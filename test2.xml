@@ -1,0 +1,37 @@
+<PDFComposition>
+    <Metadata>
+        <Author>Robin</Author>
+    </Metadata>
+
+    <LayerTree displayOnlyOnVisiblePages="true">
+        <Layer id="background" name="Background chart"/>
+        <Layer id="nelson" name="Nelson"/>
+    </LayerTree>
+
+    <Page id="page_1">
+        <DPI>72</DPI>
+        <Width>841.698</Width>
+        <Height>595.14</Height>
+        <Georeferencing id="georeferenced">
+            <!-- -0.8,50.0 : -0.1,50.4 -->
+            <SRS>EPSG:4326</SRS>
+            <!-- <BoundingBox x1="1" y1="1" x2="9" y2="14"/>
+            <BoundingPolygon>POLYGON((-0.8 50,-0.8 50.4,-0.1 50.4,-0.1 50,-0.8 50))</BoundingPolygon> -->
+            <ControlPoint x="1"  y="1"  GeoY="50"  GeoX="-0.8"/>
+            <ControlPoint x="1"  y="595.14" GeoY="50.4"  GeoX="-0.8"/>
+            <ControlPoint x="841.698"  y="1"  GeoY="50"  GeoX="-0.1"/>
+            <ControlPoint x="841.698"  y="595.14" GeoY="50.4"  GeoX="-0.1"/>
+        </Georeferencing>
+
+        <Content>
+                <IfLayerOn layerId="background">
+                    <Raster dataset="chart_reprojected.tif" georeferencingId="georeferenced"/>
+                </IfLayerOn>
+                <IfLayerOn layerId="nelson">
+                <Vector dataset="Nelson.shp" layer="Nelson" georeferencingId="georeferenced">
+                </Vector>
+                </IfLayerOn>
+        </Content>
+    </Page>
+
+</PDFComposition>
