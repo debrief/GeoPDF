@@ -576,6 +576,13 @@
     // Main code - run on document open
     //
 
+    // Put the actual OCG references into the timestamps array
+    // (this isn't in a function, so will just run on document load)
+    for (i = 0; i &lt; timestamps.length; i += 1) {
+        var ocg = getOCGByName(timestamps[i].ocg_name);
+        timestamps[i].ocg = ocg;
+    }
+
     // Create main UI components
     var overall_left = 10;
     var overall_top = -10;
@@ -603,13 +610,6 @@
     moveTimer = app.setInterval(&quot;moveAllFields()&quot;, 1000);
     // Stop timer on document close
     this.setAction("WillClose", "app.clearInterval(moveTimer);");
-
-    // Put the actual OCG references into the timestamps array
-    // (this isn't in a function, so will just run on document load)
-    for (i = 0; i &lt; timestamps.length; i += 1) {
-        var ocg = getOCGByName(timestamps[i].ocg_name);
-        timestamps[i].ocg = ocg;
-    }
 
     // Mark doc as not having changed, so it doesn't say it needs saving
     this.dirty = false;
@@ -764,7 +764,7 @@
                     <Vector dataset="15min_split/Collingwood_10min_Split/Nearest15min_0500.geojson" layer="Nearest15min_0500" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
                         <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
                     </Vector>
-                    <VectorLabel dataset="Collingwood_FirstPoint.geojson" layer="Collingwood_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Nelson",c:#0d0d8e,s:24pt,p:2,dy:-10mm,bo:1)'/>
+                    <VectorLabel dataset="Collingwood_FirstPoint.geojson" layer="Collingwood_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Collingwood",c:#0d0d8e,s:24pt,p:2,dy:-10mm,bo:1)'/>
                 </IfLayerOn>
             </IfLayerOn>
             <IfLayerOn layerId="1995-12-12 05:15">
