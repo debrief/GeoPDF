@@ -76,11 +76,16 @@
     function toggleDynamic() {
         // Toggles the dynamic UI components by:
         //  - toggling the state of the toggle button
-        //  - going to the first or last timestep
+        //  - turning on/off the static/dynamic layers
         //  - making the other UI components visible/invisible
+        // We use the borderStyle of the button to tell us what
+        // state it is in
+        // If it is currently Inset (border.i) then it looks 'pressed' and we
+        // want to 'unpress' it
         if (event.target.borderStyle == border.i) {
-            // Perform Pop Up Actions
-            event.target.borderStyle = border.b;
+            // Perform Pop Up Actions - ie. switch back to non-interactive
+
+            event.target.borderStyle = border.b; // Bevelled border - looks unpressed
             // Restore Up Colors
             event.target.fillColor = lightBlue;
 
@@ -89,17 +94,10 @@
             getOCGByName("Nelson (non-interactive)").state = true;
             getOCGByName("Collingwood (non-interactive)").state = true;
             getOCGByName("Interactive Layers").state = false;
-            
-            toggleObjectVisible("btnPlayPause");
-            toggleObjectVisible("btnNext");
-            toggleObjectVisible("btnPrev");
-            toggleObjectVisible("txtTime");
-            for (i = 0; i &lt; timestamps.length; i += 1) {
-                toggleObjectVisible("btnSlider_" + i);
-            }
         } else {
-            // Perform Push Down Actions
-            event.target.borderStyle = border.i;
+            // Perform Push Down Actions - ie. switch to interactive
+
+            event.target.borderStyle = border.i; // Inset border - looks pressed
             // Darken Down Colors
             event.target.fillColor = darkBlue;
 
@@ -108,15 +106,16 @@
             getOCGByName("Interactive Layers").state = true;
             
             goToFirstTimestep();
-
-            toggleObjectVisible("btnPlayPause");
-            toggleObjectVisible("btnNext");
-            toggleObjectVisible("btnPrev");
-            toggleObjectVisible("txtTime");
-            for (i = 0; i &lt; timestamps.length; i += 1) {
-                toggleObjectVisible("btnSlider_" + i);
-            }
         }
+
+        toggleObjectVisible("btnPlayPause");
+        toggleObjectVisible("btnNext");
+        toggleObjectVisible("btnPrev");
+        toggleObjectVisible("txtTime");
+        for (i = 0; i &lt; timestamps.length; i += 1) {
+            toggleObjectVisible("btnSlider_" + i);
+        }
+
         this.dirty = false;
     }
 
@@ -380,7 +379,7 @@
         // Set the properties
         if (oFld != null) {
             oFld.buttonSetCaption(caption);
-            oFld.borderStyle == border.s;
+            oFld.borderStyle == border.s; // Solid border
             oFld.strokeColor = color.transparent;
             oFld.textColor = color.black;
             oFld.fillColor = lightBlue;
