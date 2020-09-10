@@ -194,16 +194,18 @@
     function playPause() {
         // Deals with changing the state of the Play/Pause button and
         // then actually plays/pauses the animation
+        // Again, this uses the button border style to tell us whether we need to
+        // play or pause
         if (event.target.borderStyle == border.i) {
             // Perform Pop Up Actions
-            event.target.borderStyle = border.b;
+            event.target.borderStyle = border.b; // Bevelled - ie. unpressed
             event.target.buttonSetCaption(">");
             // Restore Up Colors
             event.target.fillColor = lightBlue;
             playPauseAnimation();
         } else {
             // Perform Push Down Actions
-            event.target.borderStyle = border.i;
+            event.target.borderStyle = border.i; // Inset - ie. pressed
             event.target.buttonSetCaption("||");
             // Darken Down Colors
             event.target.fillColor = darkBlue;
@@ -286,7 +288,7 @@
         // on the page count up from the bottom. Take away the co-ords of the top to switch between them.
         yPos = pgRect[1] - yPos;
 
-        return [xPos, yPos, zoomFactor]
+        return [xPos, yPos, zoomFactor];
     }
 
     function moveField(fldName, xPos, yPos, zoomFactor) {
@@ -344,14 +346,14 @@
         // Set the properties
         if (oFld != null) {
             oFld.buttonSetCaption(caption);
-            oFld.borderStyle == border.i
+            oFld.borderStyle == border.i;
             oFld.strokeColor = color.black;
             oFld.textColor = color.black;
             oFld.textSize = 20;
             oFld.fillColor = lightBlue;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
             oFld.setAction("MouseUp", jsCode);
 
@@ -385,7 +387,7 @@
             oFld.fillColor = lightBlue;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
             oFld.setAction("MouseEnter", jsCode);
 
@@ -421,7 +423,7 @@
             oFld.fillColor = color.black;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
 
             // Store offsets and size in attributes so we can use them later to reposition the button
@@ -487,7 +489,7 @@
         // Iterate over the list of timestamps, setting the .ocg
         // property to the OCG object using the dict created above
         for (i = 0; i &lt; timestamps.length; i += 1) {
-            timestamps[i].ocg = ocg_name_to_ocg[timestamps[i].ocg_name]
+            timestamps[i].ocg = ocg_name_to_ocg[timestamps[i].ocg_name];
         }
     }
 
@@ -515,7 +517,7 @@
     // Create many small buttons for the slider
     var smallButtonSize = 156 / timestamps.length;
     for (i = 0; i &lt; timestamps.length; i += 1) {
-        createSliderButton("btnSlider_" + i, "", 0, overall_left+(smallButtonSize*i), overall_top, smallButtonSize, 20, true, "onSliderButtonEnter(" + i + ");")
+        createSliderButton("btnSlider_" + i, "", 0, overall_left+(smallButtonSize*i), overall_top, smallButtonSize, 20, true, "onSliderButtonEnter(" + i + ");");
     }
 
     // Move all fields at start up
