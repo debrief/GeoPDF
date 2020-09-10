@@ -32,13 +32,6 @@
         lastSliderButtonLocation = 0;
     }
 
-    function goToLastTimestep() {
-        goToTimestepIndex(timestamps.length - 1);
-        markSliderPart(timestamps.length - 1);
-        lastSliderButtonLocation = timestamps.length - 1;
-    }
-
-
     function goToTimestepIndex(idx) {
         // We can make this efficient because we know that everything is in time
         // order, and there will be blocks of timestamps that are on or off
