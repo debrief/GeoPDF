@@ -366,13 +366,6 @@
         lastSliderButtonLocation = 0;
     }
 
-    function goToLastTimestep() {
-        goToTimestepIndex(timestamps.length - 1);
-        markSliderPart(timestamps.length - 1);
-        lastSliderButtonLocation = timestamps.length - 1;
-    }
-
-
     function goToTimestepIndex(idx) {
         // We can make this efficient because we know that everything is in time
         // order, and there will be blocks of timestamps that are on or off
@@ -417,31 +410,28 @@
     function toggleDynamic() {
         // Toggles the dynamic UI components by:
         //  - toggling the state of the toggle button
-        //  - going to the first or last timestep
+        //  - turning on/off the static/dynamic layers
         //  - making the other UI components visible/invisible
+        // We use the borderStyle of the button to tell us what
+        // state it is in
+        // If it is currently Inset (border.i) then it looks 'pressed' and we
+        // want to 'unpress' it
         if (event.target.borderStyle == border.i) {
-            // Perform Pop Up Actions
-            event.target.borderStyle = border.b;
+            // Perform Pop Up Actions - ie. switch back to non-interactive
+
+            event.target.borderStyle = border.b; // Bevelled border - looks unpressed
             // Restore Up Colors
             event.target.fillColor = lightBlue;
 
-            console.println("Unmarking " + lastSliderButtonLocation);
             unmarkSliderPart(lastSliderButtonLocation);
 
             getOCGByName("Nelson (non-interactive)").state = true;
             getOCGByName("Collingwood (non-interactive)").state = true;
             getOCGByName("Interactive Layers").state = false;
-            
-            toggleObjectVisible("btnPlayPause");
-            toggleObjectVisible("btnNext");
-            toggleObjectVisible("btnPrev");
-            toggleObjectVisible("txtTime");
-            for (i = 0; i &lt; timestamps.length; i += 1) {
-                toggleObjectVisible("btnSlider_" + i);
-            }
         } else {
-            // Perform Push Down Actions
-            event.target.borderStyle = border.i;
+            // Perform Push Down Actions - ie. switch to interactive
+
+            event.target.borderStyle = border.i; // Inset border - looks pressed
             // Darken Down Colors
             event.target.fillColor = darkBlue;
 
@@ -450,15 +440,16 @@
             getOCGByName("Interactive Layers").state = true;
             
             goToFirstTimestep();
-
-            toggleObjectVisible("btnPlayPause");
-            toggleObjectVisible("btnNext");
-            toggleObjectVisible("btnPrev");
-            toggleObjectVisible("txtTime");
-            for (i = 0; i &lt; timestamps.length; i += 1) {
-                toggleObjectVisible("btnSlider_" + i);
-            }
         }
+
+        toggleObjectVisible("btnPlayPause");
+        toggleObjectVisible("btnNext");
+        toggleObjectVisible("btnPrev");
+        toggleObjectVisible("txtTime");
+        for (i = 0; i &lt; timestamps.length; i += 1) {
+            toggleObjectVisible("btnSlider_" + i);
+        }
+
         this.dirty = false;
     }
 
@@ -537,16 +528,18 @@
     function playPause() {
         // Deals with changing the state of the Play/Pause button and
         // then actually plays/pauses the animation
+        // Again, this uses the button border style to tell us whether we need to
+        // play or pause
         if (event.target.borderStyle == border.i) {
             // Perform Pop Up Actions
-            event.target.borderStyle = border.b;
+            event.target.borderStyle = border.b; // Bevelled - ie. unpressed
             event.target.buttonSetCaption(">");
             // Restore Up Colors
             event.target.fillColor = lightBlue;
             playPauseAnimation();
         } else {
             // Perform Push Down Actions
-            event.target.borderStyle = border.i;
+            event.target.borderStyle = border.i; // Inset - ie. pressed
             event.target.buttonSetCaption("||");
             // Darken Down Colors
             event.target.fillColor = darkBlue;
@@ -629,7 +622,7 @@
         // on the page count up from the bottom. Take away the co-ords of the top to switch between them.
         yPos = pgRect[1] - yPos;
 
-        return [xPos, yPos, zoomFactor]
+        return [xPos, yPos, zoomFactor];
     }
 
     function moveField(fldName, xPos, yPos, zoomFactor) {
@@ -649,6 +642,7 @@
     }
 
     function moveAllFields() {
+        this.delay = true;
         newPos = calcNewBasePosition();
 
         // If zoom/scroll position hasn't changed then do nothing
@@ -670,6 +664,7 @@
             moveField("btnSlider_" + i, xPos, yPos, zoomFactor);
         }
 
+        this.delay = false;
         this.dirty = false;
     }
 
@@ -687,14 +682,14 @@
         // Set the properties
         if (oFld != null) {
             oFld.buttonSetCaption(caption);
-            oFld.borderStyle == border.i
+            oFld.borderStyle == border.i;
             oFld.strokeColor = color.black;
             oFld.textColor = color.black;
             oFld.textSize = 20;
             oFld.fillColor = lightBlue;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
             oFld.setAction("MouseUp", jsCode);
 
@@ -722,13 +717,13 @@
         // Set the properties
         if (oFld != null) {
             oFld.buttonSetCaption(caption);
-            oFld.borderStyle == border.s;
+            oFld.borderStyle == border.s; // Solid border
             oFld.strokeColor = color.transparent;
             oFld.textColor = color.black;
             oFld.fillColor = lightBlue;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
             oFld.setAction("MouseEnter", jsCode);
 
@@ -764,7 +759,7 @@
             oFld.fillColor = color.black;
             oFld.lineWidth = 0;
             if (hidden) {
-                oFld.display = display.hidden
+                oFld.display = display.hidden;
             }
 
             // Store offsets and size in attributes so we can use them later to reposition the button
@@ -804,11 +799,9 @@
         }
 
         // initialize the media object to read pageWindowRect, because AcrobatJS...
-        console.println(this.media);
         //compare pixel width of application page window area, the current zoom level,
         // and the page width in inches to get user display DPI.  Round to clean up FP errors; but +/- 1 PPI isn't the end of the world.
         userDPI  = Math.round((doc.pageWindowRect[2] - doc.pageWindowRect[0]) / refView.pageViewZoom / pWidth);
-        console.println("\nUser DPI: "+userDPI );
         return userDPI;
     }
 
@@ -832,7 +825,7 @@
         // Iterate over the list of timestamps, setting the .ocg
         // property to the OCG object using the dict created above
         for (i = 0; i &lt; timestamps.length; i += 1) {
-            timestamps[i].ocg = ocg_name_to_ocg[timestamps[i].ocg_name]
+            timestamps[i].ocg = ocg_name_to_ocg[timestamps[i].ocg_name];
         }
     }
 
@@ -860,7 +853,7 @@
     // Create many small buttons for the slider
     var smallButtonSize = 156 / timestamps.length;
     for (i = 0; i &lt; timestamps.length; i += 1) {
-        createSliderButton("btnSlider_" + i, "", 0, overall_left+(smallButtonSize*i), overall_top, smallButtonSize, 20, true, "onSliderButtonEnter(" + i + ");")
+        createSliderButton("btnSlider_" + i, "", 0, overall_left+(smallButtonSize*i), overall_top, smallButtonSize, 20, true, "onSliderButtonEnter(" + i + ");");
     }
 
     // Move all fields at start up
