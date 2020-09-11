@@ -308,6 +308,7 @@
     }
 
     function moveAllFields() {
+        this.delay = true;
         newPos = calcNewBasePosition();
 
         // If zoom/scroll position hasn't changed then do nothing
@@ -329,6 +330,7 @@
             moveField("btnSlider_" + i, xPos, yPos, zoomFactor);
         }
 
+        this.delay = false;
         this.dirty = false;
     }
 
