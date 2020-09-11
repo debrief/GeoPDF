@@ -20,6 +20,9 @@
     var lastPageViewZoom = null;
     var lastSliderButtonLocation = 0;
 
+    // List of non-interactive layers
+    var nonInteractiveLayers = ['Nelson (non-interactive)', 'Collingwood (non-interactive)']
+
     // Array of objects containing the name of the timestamp
     // and a name of the OCG to turn on for that timestep.
     // This is altered by the code in the MAIN section at the bottom
@@ -425,8 +428,9 @@
 
             unmarkSliderPart(lastSliderButtonLocation);
 
-            getOCGByName("Nelson (non-interactive)").state = true;
-            getOCGByName("Collingwood (non-interactive)").state = true;
+            for (i = 0; i &lt; nonInteractiveLayers.length; i += 1) {
+                getOCGByName(nonInteractiveLayers[i]).state = true;
+            }
             getOCGByName("Interactive Layers").state = false;
         } else {
             // Perform Push Down Actions - ie. switch to interactive
@@ -435,8 +439,9 @@
             // Darken Down Colors
             event.target.fillColor = darkBlue;
 
-            getOCGByName("Nelson (non-interactive)").state = false;
-            getOCGByName("Collingwood (non-interactive)").state = false;
+            for (i = 0; i &lt; nonInteractiveLayers.length; i += 1) {
+                getOCGByName(nonInteractiveLayers[i]).state = false;
+            }
             getOCGByName("Interactive Layers").state = true;
             
             goToFirstTimestep();
@@ -642,11 +647,13 @@
     }
 
     function moveAllFields() {
+        // Delays visually updating the fields while we move them all
         this.delay = true;
         newPos = calcNewBasePosition();
 
         // If zoom/scroll position hasn't changed then do nothing
         if (newPos == null) {
+            this.delay = false;
             return;
         }
 
@@ -664,6 +671,7 @@
             moveField("btnSlider_" + i, xPos, yPos, zoomFactor);
         }
 
+        // Updates the display of all fields now we've finished moving them
         this.delay = false;
         this.dirty = false;
     }
