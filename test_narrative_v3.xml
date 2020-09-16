@@ -1,0 +1,2629 @@
+<PDFComposition>
+    <Metadata>
+        <Author>Robin</Author>
+    </Metadata>
+
+    <Javascript>
+    var animate = null;
+    var animationRunning = false;
+
+    // Colours for the UI components
+    var lightBlue = new Array("RGB", 0.815, 0.886, 0.949);
+    var darkBlue = new Array("RGB", 0.443, 0.662, 0.854);
+
+    var current_index = 0;
+    var firstRun = true;
+    var factor = null;
+    var dpi = 99;
+    var lastPageViewX = null;
+    var lastPageViewY = null;
+    var lastPageViewZoom = null;
+    var lastSliderButtonLocation = 0;
+    var currentNarrativeIndex = null;
+    var interactive = false;
+
+    // List of non-interactive layers
+    var nonInteractiveLayers = ['Nelson (non-interactive)', 'Collingwood (non-interactive)']
+
+    // Array of objects containing the name of the timestamp
+    // and a name of the OCG to turn on for that timestep.
+    // This is altered by the code in the MAIN section at the bottom
+    // which puts references to the actual OCG objects in the array
+    var narratives = [{
+    timestamp_str: &quot;1995-12-12 05:00&quot;,
+    timestamp: 818744400000,
+    text: &quot;COMEX SERIAL 16D&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 05:01&quot;,
+    timestamp: 818744460000,
+    text: &quot;INTEND WIDE AREA SEARCH AS PREVIOUS SERIAL&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 05:02&quot;,
+    timestamp: 818744520000,
+    text: &quot;BRIEFING HINTED THAT TARGET TO SE REALLY LONG TEXT HERE AND MORE AND MORE AND MORE AND MORE&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 05:22&quot;,
+    timestamp: 818745720000,
+    text: &quot;NO CONTACTS YET, SWITCHING TO SCALE 7&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 06:12&quot;,
+    timestamp: 818748720000,
+    text: &quot;INVESTIGATING TRACK 14&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 06:22&quot;,
+    timestamp: 818749320000,
+    text: &quot;POSSUB TRACK 14&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 06:42&quot;,
+    timestamp: 818750520000,
+    text: &quot;DROP TRACK 14 BIOLOGIC&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 09:53&quot;,
+    timestamp: 818761980000,
+    text: &quot;HEADING TO RV&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 09:54&quot;,
+    timestamp: 818762040000,
+    text: &quot;SUSPECT PLAYMATE NOT PRESENT&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 09:57&quot;,
+    timestamp: 818762220000,
+    text: &quot;SUSPECTED DETECTION OF RED&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 10:03&quot;,
+    timestamp: 818762580000,
+    text: &quot;CONFIRMED. OBTAIN SOLUTION&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 10:13&quot;,
+    timestamp: 818763180000,
+    text: &quot;SUSPECT TARGET ZIG&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 10:14&quot;,
+    timestamp: 818763240000,
+    text: &quot;PORT DETECTION, 16 HZ&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 10:29&quot;,
+    timestamp: 818764140000,
+    text: &quot;ENTER TRAIL&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 10:37&quot;,
+    timestamp: 818764620000,
+    text: &quot;TARGET ZIG DETECTED&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 11:19&quot;,
+    timestamp: 818767140000,
+    text: &quot;FINEX CALLED, ENTER TRANSITION&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 11:20&quot;,
+    timestamp: 818767200000,
+    text: &quot;ENTERING PLOT-LOCK TRANSITION&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 11:37&quot;,
+    timestamp: 818768220000,
+    text: &quot;ACTIVE PLOT-LOCK SUCCESSFUL&quot;
+},
+{
+    timestamp_str: &quot;1995-12-12 11:41&quot;,
+    timestamp: 818768460000,
+    text: &quot;RX CONGRATS ON UWT&quot;
+},
+]
+
+var timestamps = [
+{
+    name: &quot;1995-12-12 05:00&quot;,
+    timestamp: 818744400000,
+    ocg_name: &quot;1995-12-12 05:00&quot;
+},
+{
+    name: &quot;1995-12-12 05:05&quot;,
+    timestamp: 818744700000,
+    ocg_name: &quot;1995-12-12 05:05&quot;
+},
+{
+    name: &quot;1995-12-12 05:10&quot;,
+    timestamp: 818745000000,
+    ocg_name: &quot;1995-12-12 05:10&quot;
+},
+{
+    name: &quot;1995-12-12 05:15&quot;,
+    timestamp: 818745300000,
+    ocg_name: &quot;1995-12-12 05:15&quot;
+},
+{
+    name: &quot;1995-12-12 05:20&quot;,
+    timestamp: 818745600000,
+    ocg_name: &quot;1995-12-12 05:20&quot;
+},
+{
+    name: &quot;1995-12-12 05:25&quot;,
+    timestamp: 818745900000,
+    ocg_name: &quot;1995-12-12 05:25&quot;
+},
+{
+    name: &quot;1995-12-12 05:30&quot;,
+    timestamp: 818746200000,
+    ocg_name: &quot;1995-12-12 05:30&quot;
+},
+{
+    name: &quot;1995-12-12 05:35&quot;,
+    timestamp: 818746500000,
+    ocg_name: &quot;1995-12-12 05:35&quot;
+},
+{
+    name: &quot;1995-12-12 05:40&quot;,
+    timestamp: 818746800000,
+    ocg_name: &quot;1995-12-12 05:40&quot;
+},
+{
+    name: &quot;1995-12-12 05:45&quot;,
+    timestamp: 818747100000,
+    ocg_name: &quot;1995-12-12 05:45&quot;
+},
+{
+    name: &quot;1995-12-12 05:50&quot;,
+    timestamp: 818747400000,
+    ocg_name: &quot;1995-12-12 05:50&quot;
+},
+{
+    name: &quot;1995-12-12 05:55&quot;,
+    timestamp: 818747700000,
+    ocg_name: &quot;1995-12-12 05:55&quot;
+},
+{
+    name: &quot;1995-12-12 06:00&quot;,
+    timestamp: 818748000000,
+    ocg_name: &quot;1995-12-12 06:00&quot;
+},
+{
+    name: &quot;1995-12-12 06:05&quot;,
+    timestamp: 818748300000,
+    ocg_name: &quot;1995-12-12 06:05&quot;
+},
+{
+    name: &quot;1995-12-12 06:10&quot;,
+    timestamp: 818748600000,
+    ocg_name: &quot;1995-12-12 06:10&quot;
+},
+{
+    name: &quot;1995-12-12 06:15&quot;,
+    timestamp: 818748900000,
+    ocg_name: &quot;1995-12-12 06:15&quot;
+},
+{
+    name: &quot;1995-12-12 06:20&quot;,
+    timestamp: 818749200000,
+    ocg_name: &quot;1995-12-12 06:20&quot;
+},
+{
+    name: &quot;1995-12-12 06:25&quot;,
+    timestamp: 818749500000,
+    ocg_name: &quot;1995-12-12 06:25&quot;
+},
+{
+    name: &quot;1995-12-12 06:30&quot;,
+    timestamp: 818749800000,
+    ocg_name: &quot;1995-12-12 06:30&quot;
+},
+{
+    name: &quot;1995-12-12 06:35&quot;,
+    timestamp: 818750100000,
+    ocg_name: &quot;1995-12-12 06:35&quot;
+},
+{
+    name: &quot;1995-12-12 06:40&quot;,
+    timestamp: 818750400000,
+    ocg_name: &quot;1995-12-12 06:40&quot;
+},
+{
+    name: &quot;1995-12-12 06:45&quot;,
+    timestamp: 818750700000,
+    ocg_name: &quot;1995-12-12 06:45&quot;
+},
+{
+    name: &quot;1995-12-12 06:50&quot;,
+    timestamp: 818751000000,
+    ocg_name: &quot;1995-12-12 06:50&quot;
+},
+{
+    name: &quot;1995-12-12 06:55&quot;,
+    timestamp: 818751300000,
+    ocg_name: &quot;1995-12-12 06:55&quot;
+},
+{
+    name: &quot;1995-12-12 07:00&quot;,
+    timestamp: 818751600000,
+    ocg_name: &quot;1995-12-12 07:00&quot;
+},
+{
+    name: &quot;1995-12-12 07:05&quot;,
+    timestamp: 818751900000,
+    ocg_name: &quot;1995-12-12 07:05&quot;
+},
+{
+    name: &quot;1995-12-12 07:10&quot;,
+    timestamp: 818752200000,
+    ocg_name: &quot;1995-12-12 07:10&quot;
+},
+{
+    name: &quot;1995-12-12 07:15&quot;,
+    timestamp: 818752500000,
+    ocg_name: &quot;1995-12-12 07:15&quot;
+},
+{
+    name: &quot;1995-12-12 07:20&quot;,
+    timestamp: 818752800000,
+    ocg_name: &quot;1995-12-12 07:20&quot;
+},
+{
+    name: &quot;1995-12-12 07:25&quot;,
+    timestamp: 818753100000,
+    ocg_name: &quot;1995-12-12 07:25&quot;
+},
+{
+    name: &quot;1995-12-12 07:30&quot;,
+    timestamp: 818753400000,
+    ocg_name: &quot;1995-12-12 07:30&quot;
+},
+{
+    name: &quot;1995-12-12 07:35&quot;,
+    timestamp: 818753700000,
+    ocg_name: &quot;1995-12-12 07:35&quot;
+},
+{
+    name: &quot;1995-12-12 07:40&quot;,
+    timestamp: 818754000000,
+    ocg_name: &quot;1995-12-12 07:40&quot;
+},
+{
+    name: &quot;1995-12-12 07:45&quot;,
+    timestamp: 818754300000,
+    ocg_name: &quot;1995-12-12 07:45&quot;
+},
+{
+    name: &quot;1995-12-12 07:50&quot;,
+    timestamp: 818754600000,
+    ocg_name: &quot;1995-12-12 07:50&quot;
+},
+{
+    name: &quot;1995-12-12 07:55&quot;,
+    timestamp: 818754900000,
+    ocg_name: &quot;1995-12-12 07:55&quot;
+},
+{
+    name: &quot;1995-12-12 08:00&quot;,
+    timestamp: 818755200000,
+    ocg_name: &quot;1995-12-12 08:00&quot;
+},
+{
+    name: &quot;1995-12-12 08:05&quot;,
+    timestamp: 818755500000,
+    ocg_name: &quot;1995-12-12 08:05&quot;
+},
+{
+    name: &quot;1995-12-12 08:10&quot;,
+    timestamp: 818755800000,
+    ocg_name: &quot;1995-12-12 08:10&quot;
+},
+{
+    name: &quot;1995-12-12 08:15&quot;,
+    timestamp: 818756100000,
+    ocg_name: &quot;1995-12-12 08:15&quot;
+},
+{
+    name: &quot;1995-12-12 08:20&quot;,
+    timestamp: 818756400000,
+    ocg_name: &quot;1995-12-12 08:20&quot;
+},
+{
+    name: &quot;1995-12-12 08:25&quot;,
+    timestamp: 818756700000,
+    ocg_name: &quot;1995-12-12 08:25&quot;
+},
+{
+    name: &quot;1995-12-12 08:30&quot;,
+    timestamp: 818757000000,
+    ocg_name: &quot;1995-12-12 08:30&quot;
+},
+{
+    name: &quot;1995-12-12 08:35&quot;,
+    timestamp: 818757300000,
+    ocg_name: &quot;1995-12-12 08:35&quot;
+},
+{
+    name: &quot;1995-12-12 08:40&quot;,
+    timestamp: 818757600000,
+    ocg_name: &quot;1995-12-12 08:40&quot;
+},
+{
+    name: &quot;1995-12-12 08:45&quot;,
+    timestamp: 818757900000,
+    ocg_name: &quot;1995-12-12 08:45&quot;
+},
+{
+    name: &quot;1995-12-12 08:50&quot;,
+    timestamp: 818758200000,
+    ocg_name: &quot;1995-12-12 08:50&quot;
+},
+{
+    name: &quot;1995-12-12 08:55&quot;,
+    timestamp: 818758500000,
+    ocg_name: &quot;1995-12-12 08:55&quot;
+},
+{
+    name: &quot;1995-12-12 09:00&quot;,
+    timestamp: 818758800000,
+    ocg_name: &quot;1995-12-12 09:00&quot;
+},
+{
+    name: &quot;1995-12-12 09:05&quot;,
+    timestamp: 818759100000,
+    ocg_name: &quot;1995-12-12 09:05&quot;
+},
+{
+    name: &quot;1995-12-12 09:10&quot;,
+    timestamp: 818759400000,
+    ocg_name: &quot;1995-12-12 09:10&quot;
+},
+{
+    name: &quot;1995-12-12 09:15&quot;,
+    timestamp: 818759700000,
+    ocg_name: &quot;1995-12-12 09:15&quot;
+},
+{
+    name: &quot;1995-12-12 09:20&quot;,
+    timestamp: 818760000000,
+    ocg_name: &quot;1995-12-12 09:20&quot;
+},
+{
+    name: &quot;1995-12-12 09:25&quot;,
+    timestamp: 818760300000,
+    ocg_name: &quot;1995-12-12 09:25&quot;
+},
+{
+    name: &quot;1995-12-12 09:30&quot;,
+    timestamp: 818760600000,
+    ocg_name: &quot;1995-12-12 09:30&quot;
+},
+{
+    name: &quot;1995-12-12 09:35&quot;,
+    timestamp: 818760900000,
+    ocg_name: &quot;1995-12-12 09:35&quot;
+},
+{
+    name: &quot;1995-12-12 09:40&quot;,
+    timestamp: 818761200000,
+    ocg_name: &quot;1995-12-12 09:40&quot;
+},
+{
+    name: &quot;1995-12-12 09:45&quot;,
+    timestamp: 818761500000,
+    ocg_name: &quot;1995-12-12 09:45&quot;
+},
+{
+    name: &quot;1995-12-12 09:50&quot;,
+    timestamp: 818761800000,
+    ocg_name: &quot;1995-12-12 09:50&quot;
+},
+{
+    name: &quot;1995-12-12 09:55&quot;,
+    timestamp: 818762100000,
+    ocg_name: &quot;1995-12-12 09:55&quot;
+},
+{
+    name: &quot;1995-12-12 10:00&quot;,
+    timestamp: 818762400000,
+    ocg_name: &quot;1995-12-12 10:00&quot;
+},
+{
+    name: &quot;1995-12-12 10:05&quot;,
+    timestamp: 818762700000,
+    ocg_name: &quot;1995-12-12 10:05&quot;
+},
+{
+    name: &quot;1995-12-12 10:10&quot;,
+    timestamp: 818763000000,
+    ocg_name: &quot;1995-12-12 10:10&quot;
+},
+{
+    name: &quot;1995-12-12 10:15&quot;,
+    timestamp: 818763300000,
+    ocg_name: &quot;1995-12-12 10:15&quot;
+},
+{
+    name: &quot;1995-12-12 10:20&quot;,
+    timestamp: 818763600000,
+    ocg_name: &quot;1995-12-12 10:20&quot;
+},
+{
+    name: &quot;1995-12-12 10:25&quot;,
+    timestamp: 818763900000,
+    ocg_name: &quot;1995-12-12 10:25&quot;
+},
+{
+    name: &quot;1995-12-12 10:30&quot;,
+    timestamp: 818764200000,
+    ocg_name: &quot;1995-12-12 10:30&quot;
+},
+{
+    name: &quot;1995-12-12 10:35&quot;,
+    timestamp: 818764500000,
+    ocg_name: &quot;1995-12-12 10:35&quot;
+},
+{
+    name: &quot;1995-12-12 10:40&quot;,
+    timestamp: 818764800000,
+    ocg_name: &quot;1995-12-12 10:40&quot;
+},
+{
+    name: &quot;1995-12-12 10:45&quot;,
+    timestamp: 818765100000,
+    ocg_name: &quot;1995-12-12 10:45&quot;
+},
+{
+    name: &quot;1995-12-12 10:50&quot;,
+    timestamp: 818765400000,
+    ocg_name: &quot;1995-12-12 10:50&quot;
+},
+{
+    name: &quot;1995-12-12 10:55&quot;,
+    timestamp: 818765700000,
+    ocg_name: &quot;1995-12-12 10:55&quot;
+},
+{
+    name: &quot;1995-12-12 11:00&quot;,
+    timestamp: 818766000000,
+    ocg_name: &quot;1995-12-12 11:00&quot;
+},
+{
+    name: &quot;1995-12-12 11:05&quot;,
+    timestamp: 818766300000,
+    ocg_name: &quot;1995-12-12 11:05&quot;
+},
+{
+    name: &quot;1995-12-12 11:10&quot;,
+    timestamp: 818766600000,
+    ocg_name: &quot;1995-12-12 11:10&quot;
+},
+{
+    name: &quot;1995-12-12 11:15&quot;,
+    timestamp: 818766900000,
+    ocg_name: &quot;1995-12-12 11:15&quot;
+},
+{
+    name: &quot;1995-12-12 11:20&quot;,
+    timestamp: 818767200000,
+    ocg_name: &quot;1995-12-12 11:20&quot;
+},
+{
+    name: &quot;1995-12-12 11:25&quot;,
+    timestamp: 818767500000,
+    ocg_name: &quot;1995-12-12 11:25&quot;
+},
+{
+    name: &quot;1995-12-12 11:30&quot;,
+    timestamp: 818767800000,
+    ocg_name: &quot;1995-12-12 11:30&quot;
+},
+{
+    name: &quot;1995-12-12 11:35&quot;,
+    timestamp: 818768100000,
+    ocg_name: &quot;1995-12-12 11:35&quot;
+},
+{
+    name: &quot;1995-12-12 11:40&quot;,
+    timestamp: 818768400000,
+    ocg_name: &quot;1995-12-12 11:40&quot;
+},
+{
+    name: &quot;1995-12-12 11:45&quot;,
+    timestamp: 818768700000,
+    ocg_name: &quot;1995-12-12 11:45&quot;
+},
+{
+    name: &quot;1995-12-12 11:50&quot;,
+    timestamp: 818769000000,
+    ocg_name: &quot;1995-12-12 11:50&quot;
+},
+];
+
+
+    function goToFirstTimestep() {
+        goToTimestepIndex(0);
+        markSliderPart(0);
+        lastSliderButtonLocation = 0;
+    }
+
+    function goToTimestepIndex(idx) {
+        // First, turn on this timestep's OCG
+        timestamps[idx].ocg.state = true;
+
+        // We can make this efficient because we know that everything is in time
+        // order, and there will be blocks of timestamps that are on or off
+
+        // If the next timestamp to the right is on, then continue searching
+        // to the right turning timestamps off, until we get to one that is off
+        // Once we find one that is off we know that all the rest to the right
+        // of that one will also be off, so we can stop there.
+        var upwards_idx = idx + 1;
+        while ((upwards_idx &lt; timestamps.length) &amp;&amp; (timestamps[upwards_idx].ocg.state == true)) {
+            timestamps[upwards_idx].ocg.state = false;
+            upwards_idx = upwards_idx + 1;
+        }
+
+        // Same as above, but going to the left - if we know it is off then we need
+        // to turn it on, until we find a block of ones that are on
+        var downwards_idx = idx - 1;
+        while ((downwards_idx &gt;= 0) &amp;&amp; (timestamps[downwards_idx].ocg.state == false)) {
+            timestamps[downwards_idx].ocg.state = true;
+            downwards_idx = downwards_idx - 1;
+        }
+    
+        current_index = idx;
+
+        // Update the displayed time
+        var txt = this.getField("txtTime");
+        txt.value = timestamps[current_index].name;
+
+        updateNarrative();
+
+        this.dirty = false;
+    }
+
+    function toggleObjectVisible(objName) {
+        // Takes an object name, gets the object, and toggles its visibility
+        var obj = this.getField(objName);
+        if (obj.display == display.visible) {
+            obj.display = display.hidden;
+        } else {
+            obj.display = display.visible;
+        }
+    }
+
+    function toggleDynamic() {
+        // Toggles the dynamic UI components by:
+        //  - toggling the state of the toggle button
+        //  - turning on/off the static/dynamic layers
+        //  - making the other UI components visible/invisible
+        if (interactive) {
+            // Perform Pop Up Actions - ie. switch back to non-interactive
+
+            var btn = this.getField("btnDynamicToggle");
+            btn.borderStyle = border.b; // Bevelled border - looks unpressed
+            // Restore Up Colors
+            btn.fillColor = lightBlue;
+
+            unmarkSliderPart(lastSliderButtonLocation);
+
+            for (i = 0; i &lt; nonInteractiveLayers.length; i += 1) {
+                getOCGByName(nonInteractiveLayers[i]).state = true;
+            }
+            getOCGByName("Interactive Layers").state = false;
+            interactive = false;
+        } else {
+            // Perform Push Down Actions - ie. switch to interactive
+            var btn = this.getField("btnDynamicToggle");
+            btn.borderStyle = border.i; // Inset border - looks pressed
+            // Darken Down Colors
+            btn.fillColor = darkBlue;
+
+            for (i = 0; i &lt; nonInteractiveLayers.length; i += 1) {
+                getOCGByName(nonInteractiveLayers[i]).state = false;
+            }
+            getOCGByName("Interactive Layers").state = true;
+            
+            goToFirstTimestep();
+            interactive = true;
+        }
+
+        toggleObjectVisible("btnPlayPause");
+        toggleObjectVisible("btnNext");
+        toggleObjectVisible("btnPrev");
+        toggleObjectVisible("txtTime");
+        toggleObjectVisible("txtNarrative");
+        for (i = 0; i &lt; timestamps.length; i += 1) {
+            toggleObjectVisible("btnSlider_" + i);
+        }
+
+        this.dirty = false;
+    }
+
+    function nextTimestep() {
+        if (current_index &gt;= 0) {
+            unmarkSliderPart(lastSliderButtonLocation);
+        }
+        current_index += 1;
+
+        if (current_index > timestamps.length - 1) {
+            // If we're trying to go past the end of the timestamps array then
+
+            // Reset back to the last element
+            current_index = timestamps.length - 1;
+
+            // Stop the animation
+            if (animate) {
+                app.clearInterval(animate);
+                animationRunning = false;
+            }
+            
+            // Reset the Play/Pause button state
+            var btn = this.getField("btnPlayPause");
+            btn.borderStyle = border.b;
+            btn.buttonSetCaption(">");
+            btn.fillColor = lightBlue;
+            return;
+        }
+
+        // Get the next OCG (layer) and turn it on
+        timestamps[current_index].ocg.state = true;
+
+        // Update the displayed time
+        var txt = this.getField("txtTime");
+        txt.value = timestamps[current_index].name;
+
+        updateNarrative();
+
+        markSliderPart(current_index);
+        lastSliderButtonLocation = current_index;
+
+        this.dirty = false;
+    }
+
+    function prevTimestep() {
+        // Turn off the current OCG (layer)
+        timestamps[current_index].ocg.state = false;
+        unmarkSliderPart(lastSliderButtonLocation);
+
+        current_index -= 1;
+
+        if (current_index &lt; 0) {
+            current_index = 0;
+        }
+
+        // Update the displayed time
+        var txt = this.getField("txtTime");
+        txt.value = timestamps[current_index].name;
+
+        updateNarrative();
+
+        markSliderPart(current_index);
+        lastSliderButtonLocation = current_index;
+
+        this.dirty = false;
+    }
+
+    function playPauseAnimation() {
+        // Plays/Pauses the animation - called from the main playPause function
+        if (animationRunning) {
+            app.clearInterval(animate);
+            animationRunning = false;
+        }
+        else {
+            animate = app.setInterval(&quot;nextTimestep()&quot;, 1000);
+            animationRunning = true;
+        }
+    }
+
+    function playPause() {
+        // Deals with changing the state of the Play/Pause button and
+        // then actually plays/pauses the animation
+        // Again, this uses the button border style to tell us whether we need to
+        // play or pause
+        if (event.target.borderStyle == border.i) {
+            // Perform Pop Up Actions
+            event.target.borderStyle = border.b; // Bevelled - ie. unpressed
+            event.target.buttonSetCaption(">");
+            // Restore Up Colors
+            event.target.fillColor = lightBlue;
+            playPauseAnimation();
+        } else {
+            // Perform Push Down Actions
+            event.target.borderStyle = border.i; // Inset - ie. pressed
+            event.target.buttonSetCaption("||");
+            // Darken Down Colors
+            event.target.fillColor = darkBlue;
+            playPauseAnimation();
+        }
+    }
+
+    function getOCGByName(name) {
+        // Gets an OCG (a layer) by name
+        var ocgs = this.getOCGs();
+
+        for (var i = 0; i &lt; ocgs.length; i += 1) {
+            if (ocgs[i].name == name) {
+                return ocgs[i];
+            }
+        }
+
+        return false;
+    }
+
+    function markSliderPart(index) {
+        var btn = this.getField("btnSlider_" + index);
+        btn.fillColor = darkBlue;
+    }
+
+    function unmarkSliderPart(index) {
+        var btn = this.getField("btnSlider_" + index);
+        btn.fillColor = lightBlue;
+    }
+
+
+    function calcNewBasePosition() {
+        // Calculate the new base X and Y position for the UI components from the current
+        // scroll and zoom position
+
+        if (firstRun) {
+            // On the first run only
+
+            // Print these elements to the console. We have to do this to initialise
+            // the media component - rather strange, but it works.
+            console.println(app.media);
+            console.println(this.media);
+
+            // Get the DPI, if it's invalid then set to the default of 110
+            dpi = getDPI();
+            if (dpi == 0) {
+                dpi = 110;
+            }
+
+            // The factor of 0.732 here is established by trial and error
+            // and seems to be the conversion factor between the units of pageViewX/Y
+            // and actual page units
+            factor = 0.732 / (dpi / 99);
+
+            firstRun = false;
+        }
+
+        var pgRect = this.getPageBox("Crop", 0);
+
+        var curView = eval(this.viewState.toSource());
+
+        // If nothing has changed since last time, then return
+        if ((curView.pageViewX == lastPageViewX) &amp; (curView.pageViewY == lastPageViewY) &amp; (curView.pageViewZoom == lastPageViewZoom)) {
+            return null;
+        }
+
+        // Keep track of the last values
+        lastPageViewX = curView.pageViewX;
+        lastPageViewY = curView.pageViewY;
+        lastPageViewZoom = curView.pageViewZoom;       
+
+        // Get a zoom factor which is either the current zoom, or 1 if the current zoom is less than 1
+        var zoomFactor = curView.pageViewZoom &lt; 1 ? 1 : curView.pageViewZoom;
+
+        // Calculate the new X and Y base positions based on the factor, the zoom and the current X and Y coords
+        var yPos = curView.pageViewY &gt;=0 ? (curView.pageViewY + 4) * factor / curView.pageViewZoom : 0;
+        var xPos = curView.pageViewX &gt;=0 ? (curView.pageViewX + 4) * factor / curView.pageViewZoom : 0;
+
+        // the Y values for pageViewY count down from the top of the page, whereas the Y values for locating objects
+        // on the page count up from the bottom. Take away the co-ords of the top to switch between them.
+        yPos = pgRect[1] - yPos;
+
+        return [xPos, yPos, zoomFactor];
+    }
+
+    function moveField(fldName, xPos, yPos, zoomFactor) {
+        var fld = this.getField(fldName);
+        var rect = fld.rect;
+
+        // Calculate the new position, based on the stored offsets and sizes, the new position and the zoom scaling factor
+        rect[0] = xPos + (fld._xOffset / zoomFactor);
+        rect[1] = yPos + (fld._yOffset / zoomFactor);
+        rect[2] = xPos + (fld._xOffset / zoomFactor) + (fld._xSize / zoomFactor);
+        rect[3] = yPos + (fld._yOffset / zoomFactor) - (fld._ySize / zoomFactor);
+
+        fld.rect = rect;
+
+        if (fld._origTextSize == 0) {
+            if (zoomFactor &gt;= 4) {
+                fld.textSize = 2;
+            } else if (zoomFactor &gt;= 3) {
+                fld.textSize = 3;
+            }
+            else {
+                fld.textSize = 0;
+                fld.value = fld.value;
+            }
+        } else {
+            // Scale the text size by the zoom factor too
+            fld.textSize = fld._origTextSize / zoomFactor;   
+        }
+             
+    }
+
+    function moveAllFields() {
+        // Delays visually updating the fields while we move them all
+        this.delay = true;
+        newPos = calcNewBasePosition();
+
+        // If zoom/scroll position hasn't changed then do nothing
+        if (newPos == null) {
+            this.delay = false;
+            return;
+        }
+
+        [xPos, yPos, zoomFactor] = newPos;
+
+        // Move each of the main fields
+        moveField("btnPrev", xPos, yPos, zoomFactor);
+        moveField("btnDynamicToggle", xPos, yPos, zoomFactor);
+        moveField("btnNext", xPos, yPos, zoomFactor);
+        moveField("btnPlayPause", xPos, yPos, zoomFactor);
+        moveField("txtTime", xPos, yPos, zoomFactor);
+        moveField("txtNarrative", xPos, yPos, zoomFactor);
+
+        // Move the many buttons that make up the slider
+        for (i = 0; i &lt; timestamps.length; i += 1) {
+            moveField("btnSlider_" + i, xPos, yPos, zoomFactor);
+        }
+
+        // Updates the display of all fields now we've finished moving them
+        this.delay = false;
+        this.dirty = false;
+    }
+
+    function createButton(cName, caption, nPage, xOffset, yOffset, xSize, ySize, hidden, jsCode) {
+        // Acquire the crop box (visible area) for the current page
+        var pgRect = this.getPageBox("Crop", nPage);
+        // Create array for size/location
+        var fldRect = [];
+        fldRect[0] = pgRect[0] + xOffset;
+        fldRect[1] = pgRect[0] + yOffset + ySize;
+        fldRect[2] = pgRect[0] + xOffset + xSize;
+        fldRect[3] = pgRect[0] + yOffset;
+        // Create the button
+        var oFld = this.addField( cName , "button", nPage, fldRect);
+        // Set the properties
+        if (oFld != null) {
+            oFld.buttonSetCaption(caption);
+            oFld.borderStyle == border.i;
+            oFld.strokeColor = color.black;
+            oFld.textColor = color.black;
+            oFld.textSize = 20;
+            oFld.fillColor = lightBlue;
+            oFld.lineWidth = 0;
+            if (hidden) {
+                oFld.display = display.hidden;
+            }
+            oFld.setAction("MouseUp", jsCode);
+
+            // Store offsets and size in attributes so we can use them later to reposition the button
+            oFld._xOffset = xOffset;
+            oFld._yOffset = yOffset;
+            oFld._xSize = xSize;
+            oFld._ySize = ySize;
+            oFld._origTextSize = oFld.textSize;
+        }
+        return oFld;
+    }
+
+    function createSliderButton(cName, caption, nPage, xOffset, yOffset, xSize, ySize, hidden, jsCode) {
+        // Acquire the crop box (visible area) for the current page
+        var pgRect = this.getPageBox("Crop", nPage);
+        // Create array for size/location
+        var fldRect = [];
+        fldRect[0] = pgRect[0] + xOffset;
+        fldRect[1] = pgRect[0] + yOffset + ySize;
+        fldRect[2] = pgRect[0] + xOffset + xSize;
+        fldRect[3] = pgRect[0] + yOffset;
+        // Create the button
+        var oFld = this.addField( cName , "button", nPage, fldRect);
+        // Set the properties
+        if (oFld != null) {
+            oFld.buttonSetCaption(caption);
+            oFld.borderStyle == border.s; // Solid border
+            oFld.strokeColor = color.transparent;
+            oFld.textColor = color.black;
+            oFld.fillColor = lightBlue;
+            oFld.lineWidth = 0;
+            if (hidden) {
+                oFld.display = display.hidden;
+            }
+            oFld.setAction("MouseEnter", jsCode);
+
+            // Store offsets and size in attributes so we can use them later to reposition the button
+            oFld._xOffset = xOffset;
+            oFld._yOffset = yOffset;
+            oFld._xSize = xSize;
+            oFld._ySize = ySize;
+            oFld._origTextSize = oFld.textSize;
+        }
+        return oFld;
+    }
+
+    function createTextbox(cName, contents, nPage, xOffset, yOffset, xSize, ySize, hidden, textSize) {
+        // Acquire the crop box (visible area) for the current page
+        var pgRect = this.getPageBox("Crop", nPage);
+        // Create array for size/location
+        var fldRect = [];
+        fldRect[0] = pgRect[0] + xOffset; // left x
+        fldRect[1] = pgRect[0] + yOffset + ySize; // top y
+        fldRect[2] = pgRect[0] + xOffset + xSize; // right x
+        fldRect[3] = pgRect[0] + yOffset; // bottom y
+        // Create Textbox on page
+        var oFld = this.addField( cName , "text", nPage, fldRect);
+        // Setup Textbox's Properties
+        if (oFld != null) {
+            oFld.value = contents;
+            oFld.readonly = true;
+            oFld.alignment = "center";
+            oFld.borderStyle == border.i;
+            oFld.textColor = color.green;
+            oFld.textSize = textSize;
+            oFld.fillColor = color.black;
+            oFld.lineWidth = 0;
+            if (hidden) {
+                oFld.display = display.hidden;
+            }
+
+            // Store offsets and size in attributes so we can use them later to reposition the button
+            oFld._xOffset = xOffset;
+            oFld._yOffset = yOffset;
+            oFld._xSize = xSize;
+            oFld._ySize = ySize;
+            oFld._origTextSize = oFld.textSize;
+        }
+        return oFld;
+    }
+
+    function getDPI(doc){
+        // Taken from https://community.adobe.com/t5/acrobat/is-there-a-way-to-read-the-user-s-page-display-resolution-preference-setting-from-javascript/td-p/9562886?page=1
+        if (doc == undefined) {
+            doc = this;
+        }
+        // get current view
+        var refView = eval(doc.viewState.toSource());
+        var pBox = doc.getPageBox("Crop", 0);
+        // Determine page width in inches
+        var pWidth = ((pBox[2] - pBox[0]) / 72);
+        // If pageViewZoomType 2 is "fit width" and that's all we need.
+        if (refView.pageViewZoomType != 2) {
+            // save current view to return to it so user won't notice pageViewZoomType change.
+            var curView = eval(doc.viewState.toSource());
+            // set control values to sample the zoom level at fitwidth on the target page. refView.pageViewPageNum= n;
+            refView.pageViewX = 0;  //Ensure we don't somehow wind up on another page.  Though I suspect a pageViewX of > 0 is impossible on fit width...
+            refView.pageViewY = 0;  //Ensure we don't somehow wind up on another page.
+            refView.pageViewZoomType = 2;
+            // update view to get new zoom
+            doc.viewState = refView;
+            // grab a copy to inspect
+            refView = eval(viewState.toSource());
+            // restore previous view
+            doc.viewState = curView;
+        }
+
+        // initialize the media object to read pageWindowRect, because AcrobatJS...
+        //compare pixel width of application page window area, the current zoom level,
+        // and the page width in inches to get user display DPI.  Round to clean up FP errors; but +/- 1 PPI isn't the end of the world.
+        userDPI  = Math.round((doc.pageWindowRect[2] - doc.pageWindowRect[0]) / refView.pageViewZoom / pWidth);
+        return userDPI;
+    }
+
+    function onSliderButtonEnter(index) {
+        unmarkSliderPart(lastSliderButtonLocation);
+        markSliderPart(index);
+        goToTimestepIndex(index);
+        lastSliderButtonLocation = index;
+    }
+
+    function addOCGsToArray() {
+        var ocgs = this.getOCGs();
+        var ocg_name_to_ocg = {};
+
+        // Iterate only once over the list of OCGs, creating a dict
+        // mapping OCG name to OCG object
+        for (var i = 0; i &lt; ocgs.length; i += 1) {
+            ocg_name_to_ocg[ocgs[i].name] = ocgs[i];
+        }
+
+        // Iterate over the list of timestamps, setting the .ocg
+        // property to the OCG object using the dict created above
+        for (i = 0; i &lt; timestamps.length; i += 1) {
+            timestamps[i].ocg = ocg_name_to_ocg[timestamps[i].ocg_name];
+        }
+    }
+
+    function findSurroundingIndexes(current_timestamp, arr) {
+        // Returns the indexes in the narratives array which
+        // surround current_timestamp. If there is an entry
+        // in the narratives array which exactly matches
+        // the current_timestamp then the two indexes returned
+        // are equal
+        var start = 0;
+        var end = arr.length - 1;
+
+        while ((end - start) &gt; 1) {
+            var mid = Math.floor((start + end) / 2);
+
+            if (arr[mid].timestamp == current_timestamp) {
+                start = mid;
+                end = mid;
+            }
+            else if (arr[mid].timestamp &lt; current_timestamp) {
+                start = mid;
+            }
+            else {
+                end = mid;
+            }
+        }
+
+        return [start, end]
+    }
+
+    function updateNarrative() {
+        var currentTimestamp = timestamps[current_index].timestamp;
+        [lower_index, upper_index] = findSurroundingIndexes(currentTimestamp, narratives);
+        // lower_index is now the previous entry to that time
+        // in the narratives array - so the text in that entry
+        // will be the text to display.
+
+        // TODO: Update for when there might be multiple entries
+        // within the current time period
+
+        if (lower_index != currentNarrativeIndex)
+        {
+            txtNarrative.value = narratives[lower_index].text;
+            currentNarrativeIndex = lower_index;
+        }
+        
+    }
+
+    function ensureInInteractiveMode() {
+        if (interactive == false) {
+            toggleDynamic();
+        }
+    }
+
+    function goToNearestTimestep(timestamp) {
+        ensureInInteractiveMode();
+        [lower_index, upper_index] = findSurroundingIndexes(timestamp, timestamps);
+        console.println("Surrounding indexes = " + lower_index + ", " + upper_index);
+        console.println(timestamps[upper_index].name);
+        unmarkSliderPart(lastSliderButtonLocation);
+        markSliderPart(upper_index);
+        lastSliderButtonLocation = upper_index;
+        goToTimestepIndex(upper_index);
+    }
+
+    //
+    // Main code - run on document open
+    //
+
+    // Put the actual OCG references into the timestamps array
+    addOCGsToArray();
+
+    // Create main UI components
+    var overall_left = 10;
+    var overall_top = -10;
+    createButton("btnDynamicToggle", "", 0, overall_left, overall_top - 25, 36, 36, false, "toggleDynamic();");
+    createButton("btnPrev", "&lt;&lt;", 0, overall_left + 40, overall_top - 25, 36, 36, true, "prevTimestep();");
+    createButton("btnPlayPause", "&gt;", 0, overall_left + (2 * 40), overall_top - 25, 36, 36, true, "playPause();");
+    createButton("btnNext", "&gt;&gt;", 0, overall_left + (3 * 40), overall_top - 25, 36, 36, true, "nextTimestep();");
+    createTextbox("txtTime", "", 0, overall_left, overall_top - 65, 156, 20, true, 16);
+    txtNarrative = createTextbox("txtNarrative", "", 0, overall_left, overall_top - 90, 156, 40, true, 0);
+    txtNarrative.multiline = true;
+
+    // Set font and text to get plane logo on toggle button
+    var btn = this.getField("btnDynamicToggle");
+    btn.textFont = font.ZapfD;
+    btn.buttonSetCaption("(");
+
+    // Create many small buttons for the slider
+    var smallButtonSize = 156 / timestamps.length;
+    for (i = 0; i &lt; timestamps.length; i += 1) {
+        createSliderButton("btnSlider_" + i, "", 0, overall_left+(smallButtonSize*i), overall_top, smallButtonSize, 20, true, "onSliderButtonEnter(" + i + ");");
+    }
+
+    // Move all fields at start up
+    moveAllFields();
+
+    // Set up timer to move all fields at 1 second intervals
+    moveTimer = app.setInterval(&quot;moveAllFields()&quot;, 1000);
+    // Stop timer on document close
+    this.setAction("WillClose", "app.clearInterval(moveTimer);");
+
+    // Mark doc as not having changed, so it doesn't say it needs saving
+    this.dirty = false;
+    </Javascript>
+
+    <LayerTree displayOnlyOnVisiblePages="true">
+        <Layer id="background" name="Background chart"/>
+        <Layer id="Nelson" name="Nelson (non-interactive)"/>
+        <Layer id="Collingwood" name="Collingwood (non-interactive)"/>
+        <Layer id="Interactive Layers" name="Interactive Layers" initiallyVisible="false">
+        
+<Layer id="1995-12-12 05:00" name="1995-12-12 05:00">
+    <Layer id="Nelson 1995-12-12 05:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:05" name="1995-12-12 05:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:10" name="1995-12-12 05:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:15" name="1995-12-12 05:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:20" name="1995-12-12 05:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:25" name="1995-12-12 05:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:30" name="1995-12-12 05:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:35" name="1995-12-12 05:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:40" name="1995-12-12 05:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:45" name="1995-12-12 05:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:50" name="1995-12-12 05:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 05:55" name="1995-12-12 05:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 05:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 05:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:00" name="1995-12-12 06:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:05" name="1995-12-12 06:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:10" name="1995-12-12 06:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:15" name="1995-12-12 06:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:20" name="1995-12-12 06:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:25" name="1995-12-12 06:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:30" name="1995-12-12 06:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:35" name="1995-12-12 06:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:40" name="1995-12-12 06:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:45" name="1995-12-12 06:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:50" name="1995-12-12 06:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 06:55" name="1995-12-12 06:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 06:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 06:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:00" name="1995-12-12 07:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:05" name="1995-12-12 07:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:10" name="1995-12-12 07:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:15" name="1995-12-12 07:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:20" name="1995-12-12 07:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:25" name="1995-12-12 07:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:30" name="1995-12-12 07:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:35" name="1995-12-12 07:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:40" name="1995-12-12 07:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:45" name="1995-12-12 07:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:50" name="1995-12-12 07:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 07:55" name="1995-12-12 07:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 07:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 07:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:00" name="1995-12-12 08:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:05" name="1995-12-12 08:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:10" name="1995-12-12 08:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:15" name="1995-12-12 08:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:20" name="1995-12-12 08:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:25" name="1995-12-12 08:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:30" name="1995-12-12 08:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:35" name="1995-12-12 08:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:40" name="1995-12-12 08:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:45" name="1995-12-12 08:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:50" name="1995-12-12 08:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 08:55" name="1995-12-12 08:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 08:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 08:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:00" name="1995-12-12 09:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:05" name="1995-12-12 09:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:10" name="1995-12-12 09:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:15" name="1995-12-12 09:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:20" name="1995-12-12 09:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:25" name="1995-12-12 09:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:30" name="1995-12-12 09:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:35" name="1995-12-12 09:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:40" name="1995-12-12 09:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:45" name="1995-12-12 09:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:50" name="1995-12-12 09:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 09:55" name="1995-12-12 09:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 09:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 09:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:00" name="1995-12-12 10:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:05" name="1995-12-12 10:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:10" name="1995-12-12 10:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:15" name="1995-12-12 10:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:20" name="1995-12-12 10:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:25" name="1995-12-12 10:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:30" name="1995-12-12 10:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:35" name="1995-12-12 10:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:40" name="1995-12-12 10:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:45" name="1995-12-12 10:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:50" name="1995-12-12 10:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:50" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 10:55" name="1995-12-12 10:55" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 10:55" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 10:55" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:00" name="1995-12-12 11:00" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:00" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:00" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:05" name="1995-12-12 11:05" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:05" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:05" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:10" name="1995-12-12 11:10" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:10" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:10" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:15" name="1995-12-12 11:15" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:15" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:15" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:20" name="1995-12-12 11:20" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:20" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:20" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:25" name="1995-12-12 11:25" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:25" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:25" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:30" name="1995-12-12 11:30" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:30" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:30" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:35" name="1995-12-12 11:35" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:35" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:35" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:40" name="1995-12-12 11:40" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:40" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:40" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:45" name="1995-12-12 11:45" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:45" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:45" name="Collingwood"/>
+</Layer>
+<Layer id="1995-12-12 11:50" name="1995-12-12 11:50" initiallyVisible="false">
+    <Layer id="Nelson 1995-12-12 11:50" name="Nelson"/>
+    <Layer id="Collingwood 1995-12-12 11:50" name="Collingwood"/>
+</Layer>
+        </Layer>
+    </LayerTree>
+
+    <Page id="page_1">
+        <DPI>72</DPI>
+        <Width>841.698</Width>
+        <Height>595.14</Height>
+        <Georeferencing id="georeferenced">
+            <SRS>EPSG:4326</SRS>
+            <ControlPoint x="1" y="1" GeoY="50" GeoX="-0.8"/>
+            <ControlPoint x="1" y="595.14" GeoY="50.4" GeoX="-0.8"/>
+            <ControlPoint x="841.698" y="1" GeoY="50" GeoX="-0.1"/>
+            <ControlPoint x="841.698" y="595.14" GeoY="50.4" GeoX="-0.1"/>
+        </Georeferencing>
+
+        <Content>
+            <IfLayerOn layerId="background">
+                <Raster dataset="../Chart_Reprojected_Clip1.tif" georeferencingId="georeferenced"/>
+                <Raster dataset="../Chart_Reprojected_Clip2.tif" georeferencingId="georeferenced"/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="Nelson">
+                <Vector dataset="Nelson_10min.geojson" layer="Nelson_10min" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Nelson_Hourly.geojson" layer="Nelson_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+                <VectorLabel dataset="Nelson_FirstPoint.geojson" layer="Nelson_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Nelson",c:#bd1b44,s:24pt,p:2,dy:10mm,bo:1)'/>
+                <Vector dataset="Nelson_Lines.geojson" layer="Nelson_Lines" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="Collingwood">
+                <Vector dataset="Collingwood_10min.geojson" layer="Collingwood_10min" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                    <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+                </Vector>
+                <VectorLabel dataset="Collingwood_Hourly.geojson" layer="Collingwood_Hourly" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+                <VectorLabel dataset="Collingwood_FirstPoint.geojson" layer="Collingwood_FirstPoint" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Collingwood",c:#0d0d8e,s:24pt,p:2,dy:10mm,bo:1)'/>
+                <Vector dataset="Collingwood_Lines.geojson" layer="Collingwood_Lines" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+            </IfLayerOn>
+
+            <IfLayerOn layerId="Interactive Layers">
+            <IfLayerOn layerId="1995-12-12 05:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:00">
+        <Vector dataset="Nelson_10min_0500.geojson" layer="Nelson_10min_0500" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_0500.geojson" layer="Nelson_Hourly_0500" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+        <VectorLabel dataset="Nelson_FirstPoint_0500.geojson" layer="Nelson_FirstPoint_0500" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Nelson",c:#bd1b44,s:24pt,p:2,dy:10mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:00">
+        <VectorLabel dataset="Collingwood_FirstPoint_0500.geojson" layer="Collingwood_FirstPoint_0500" georeferencingId="georeferenced" ogrStyleString='LABEL(t:"Collingwood",c:#0d0d8e,s:24pt,p:2,dy:10mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:05">
+        <Vector dataset="Nelson_Lines_0505.geojson" layer="Nelson_Lines_0505" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:05">
+        <Vector dataset="Collingwood_Lines_0505.geojson" layer="Collingwood_Lines_0505" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:10">
+        <Vector dataset="Nelson_Lines_0510.geojson" layer="Nelson_Lines_0510" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0510.geojson" layer="Nelson_10min_0510" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:10">
+        <Vector dataset="Collingwood_Lines_0510.geojson" layer="Collingwood_Lines_0510" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0510.geojson" layer="Collingwood_10min_0510" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:15">
+        <Vector dataset="Nelson_Lines_0515.geojson" layer="Nelson_Lines_0515" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:15">
+        <Vector dataset="Collingwood_Lines_0515.geojson" layer="Collingwood_Lines_0515" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:20">
+        <Vector dataset="Nelson_Lines_0520.geojson" layer="Nelson_Lines_0520" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0520.geojson" layer="Nelson_10min_0520" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:20">
+        <Vector dataset="Collingwood_Lines_0520.geojson" layer="Collingwood_Lines_0520" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0520.geojson" layer="Collingwood_10min_0520" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:25">
+        <Vector dataset="Nelson_Lines_0525.geojson" layer="Nelson_Lines_0525" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:25">
+        <Vector dataset="Collingwood_Lines_0525.geojson" layer="Collingwood_Lines_0525" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:30">
+        <Vector dataset="Nelson_Lines_0530.geojson" layer="Nelson_Lines_0530" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0530.geojson" layer="Nelson_10min_0530" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:30">
+        <Vector dataset="Collingwood_Lines_0530.geojson" layer="Collingwood_Lines_0530" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0530.geojson" layer="Collingwood_10min_0530" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:35">
+        <Vector dataset="Nelson_Lines_0535.geojson" layer="Nelson_Lines_0535" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:35">
+        <Vector dataset="Collingwood_Lines_0535.geojson" layer="Collingwood_Lines_0535" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:40">
+        <Vector dataset="Nelson_Lines_0540.geojson" layer="Nelson_Lines_0540" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0540.geojson" layer="Nelson_10min_0540" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:40">
+        <Vector dataset="Collingwood_Lines_0540.geojson" layer="Collingwood_Lines_0540" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0540.geojson" layer="Collingwood_10min_0540" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:45">
+        <Vector dataset="Nelson_Lines_0545.geojson" layer="Nelson_Lines_0545" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:45">
+        <Vector dataset="Collingwood_Lines_0545.geojson" layer="Collingwood_Lines_0545" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:50">
+        <Vector dataset="Nelson_Lines_0550.geojson" layer="Nelson_Lines_0550" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0550.geojson" layer="Nelson_10min_0550" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:50">
+        <Vector dataset="Collingwood_Lines_0550.geojson" layer="Collingwood_Lines_0550" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0550.geojson" layer="Collingwood_10min_0550" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 05:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 05:55">
+        <Vector dataset="Nelson_Lines_0555.geojson" layer="Nelson_Lines_0555" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 05:55">
+        <Vector dataset="Collingwood_Lines_0555.geojson" layer="Collingwood_Lines_0555" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:00">
+        <Vector dataset="Nelson_Lines_0600.geojson" layer="Nelson_Lines_0600" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0600.geojson" layer="Nelson_10min_0600" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_0600.geojson" layer="Nelson_Hourly_0600" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:00">
+        <Vector dataset="Collingwood_Lines_0600.geojson" layer="Collingwood_Lines_0600" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0600.geojson" layer="Collingwood_10min_0600" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_0600.geojson" layer="Collingwood_Hourly_0600" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:05">
+        <Vector dataset="Nelson_Lines_0605.geojson" layer="Nelson_Lines_0605" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:05">
+        <Vector dataset="Collingwood_Lines_0605.geojson" layer="Collingwood_Lines_0605" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:10">
+        <Vector dataset="Nelson_Lines_0610.geojson" layer="Nelson_Lines_0610" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0610.geojson" layer="Nelson_10min_0610" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:10">
+        <Vector dataset="Collingwood_Lines_0610.geojson" layer="Collingwood_Lines_0610" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0610.geojson" layer="Collingwood_10min_0610" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:15">
+        <Vector dataset="Nelson_Lines_0615.geojson" layer="Nelson_Lines_0615" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:15">
+        <Vector dataset="Collingwood_Lines_0615.geojson" layer="Collingwood_Lines_0615" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:20">
+        <Vector dataset="Nelson_Lines_0620.geojson" layer="Nelson_Lines_0620" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0620.geojson" layer="Nelson_10min_0620" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:20">
+        <Vector dataset="Collingwood_Lines_0620.geojson" layer="Collingwood_Lines_0620" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0620.geojson" layer="Collingwood_10min_0620" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:25">
+        <Vector dataset="Nelson_Lines_0625.geojson" layer="Nelson_Lines_0625" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:25">
+        <Vector dataset="Collingwood_Lines_0625.geojson" layer="Collingwood_Lines_0625" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:30">
+        <Vector dataset="Nelson_Lines_0630.geojson" layer="Nelson_Lines_0630" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0630.geojson" layer="Nelson_10min_0630" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:30">
+        <Vector dataset="Collingwood_Lines_0630.geojson" layer="Collingwood_Lines_0630" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0630.geojson" layer="Collingwood_10min_0630" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:35">
+        <Vector dataset="Nelson_Lines_0635.geojson" layer="Nelson_Lines_0635" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:35">
+        <Vector dataset="Collingwood_Lines_0635.geojson" layer="Collingwood_Lines_0635" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:40">
+        <Vector dataset="Nelson_Lines_0640.geojson" layer="Nelson_Lines_0640" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0640.geojson" layer="Nelson_10min_0640" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:40">
+        <Vector dataset="Collingwood_Lines_0640.geojson" layer="Collingwood_Lines_0640" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0640.geojson" layer="Collingwood_10min_0640" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:45">
+        <Vector dataset="Nelson_Lines_0645.geojson" layer="Nelson_Lines_0645" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:45">
+        <Vector dataset="Collingwood_Lines_0645.geojson" layer="Collingwood_Lines_0645" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:50">
+        <Vector dataset="Nelson_Lines_0650.geojson" layer="Nelson_Lines_0650" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0650.geojson" layer="Nelson_10min_0650" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:50">
+        <Vector dataset="Collingwood_Lines_0650.geojson" layer="Collingwood_Lines_0650" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0650.geojson" layer="Collingwood_10min_0650" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 06:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 06:55">
+        <Vector dataset="Nelson_Lines_0655.geojson" layer="Nelson_Lines_0655" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 06:55">
+        <Vector dataset="Collingwood_Lines_0655.geojson" layer="Collingwood_Lines_0655" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:00">
+        <Vector dataset="Nelson_Lines_0700.geojson" layer="Nelson_Lines_0700" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0700.geojson" layer="Nelson_10min_0700" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_0700.geojson" layer="Nelson_Hourly_0700" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:00">
+        <Vector dataset="Collingwood_Lines_0700.geojson" layer="Collingwood_Lines_0700" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0700.geojson" layer="Collingwood_10min_0700" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_0700.geojson" layer="Collingwood_Hourly_0700" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:05">
+        <Vector dataset="Nelson_Lines_0705.geojson" layer="Nelson_Lines_0705" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:05">
+        <Vector dataset="Collingwood_Lines_0705.geojson" layer="Collingwood_Lines_0705" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:10">
+        <Vector dataset="Nelson_Lines_0710.geojson" layer="Nelson_Lines_0710" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0710.geojson" layer="Nelson_10min_0710" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:10">
+        <Vector dataset="Collingwood_Lines_0710.geojson" layer="Collingwood_Lines_0710" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0710.geojson" layer="Collingwood_10min_0710" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:15">
+        <Vector dataset="Nelson_Lines_0715.geojson" layer="Nelson_Lines_0715" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:15">
+        <Vector dataset="Collingwood_Lines_0715.geojson" layer="Collingwood_Lines_0715" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:20">
+        <Vector dataset="Nelson_Lines_0720.geojson" layer="Nelson_Lines_0720" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0720.geojson" layer="Nelson_10min_0720" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:20">
+        <Vector dataset="Collingwood_Lines_0720.geojson" layer="Collingwood_Lines_0720" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0720.geojson" layer="Collingwood_10min_0720" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:25">
+        <Vector dataset="Nelson_Lines_0725.geojson" layer="Nelson_Lines_0725" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:25">
+        <Vector dataset="Collingwood_Lines_0725.geojson" layer="Collingwood_Lines_0725" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:30">
+        <Vector dataset="Nelson_Lines_0730.geojson" layer="Nelson_Lines_0730" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0730.geojson" layer="Nelson_10min_0730" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:30">
+        <Vector dataset="Collingwood_Lines_0730.geojson" layer="Collingwood_Lines_0730" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0730.geojson" layer="Collingwood_10min_0730" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:35">
+        <Vector dataset="Nelson_Lines_0735.geojson" layer="Nelson_Lines_0735" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:35">
+        <Vector dataset="Collingwood_Lines_0735.geojson" layer="Collingwood_Lines_0735" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:40">
+        <Vector dataset="Nelson_Lines_0740.geojson" layer="Nelson_Lines_0740" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0740.geojson" layer="Nelson_10min_0740" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:40">
+        <Vector dataset="Collingwood_Lines_0740.geojson" layer="Collingwood_Lines_0740" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0740.geojson" layer="Collingwood_10min_0740" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:45">
+        <Vector dataset="Nelson_Lines_0745.geojson" layer="Nelson_Lines_0745" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:45">
+        <Vector dataset="Collingwood_Lines_0745.geojson" layer="Collingwood_Lines_0745" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:50">
+        <Vector dataset="Nelson_Lines_0750.geojson" layer="Nelson_Lines_0750" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0750.geojson" layer="Nelson_10min_0750" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:50">
+        <Vector dataset="Collingwood_Lines_0750.geojson" layer="Collingwood_Lines_0750" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0750.geojson" layer="Collingwood_10min_0750" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 07:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 07:55">
+        <Vector dataset="Nelson_Lines_0755.geojson" layer="Nelson_Lines_0755" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 07:55">
+        <Vector dataset="Collingwood_Lines_0755.geojson" layer="Collingwood_Lines_0755" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:00">
+        <Vector dataset="Nelson_Lines_0800.geojson" layer="Nelson_Lines_0800" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0800.geojson" layer="Nelson_10min_0800" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_0800.geojson" layer="Nelson_Hourly_0800" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:00">
+        <Vector dataset="Collingwood_Lines_0800.geojson" layer="Collingwood_Lines_0800" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0800.geojson" layer="Collingwood_10min_0800" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_0800.geojson" layer="Collingwood_Hourly_0800" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:05">
+        <Vector dataset="Nelson_Lines_0805.geojson" layer="Nelson_Lines_0805" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:05">
+        <Vector dataset="Collingwood_Lines_0805.geojson" layer="Collingwood_Lines_0805" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:10">
+        <Vector dataset="Nelson_Lines_0810.geojson" layer="Nelson_Lines_0810" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0810.geojson" layer="Nelson_10min_0810" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:10">
+        <Vector dataset="Collingwood_Lines_0810.geojson" layer="Collingwood_Lines_0810" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0810.geojson" layer="Collingwood_10min_0810" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:15">
+        <Vector dataset="Nelson_Lines_0815.geojson" layer="Nelson_Lines_0815" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:15">
+        <Vector dataset="Collingwood_Lines_0815.geojson" layer="Collingwood_Lines_0815" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:20">
+        <Vector dataset="Nelson_Lines_0820.geojson" layer="Nelson_Lines_0820" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0820.geojson" layer="Nelson_10min_0820" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:20">
+        <Vector dataset="Collingwood_Lines_0820.geojson" layer="Collingwood_Lines_0820" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0820.geojson" layer="Collingwood_10min_0820" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:25">
+        <Vector dataset="Nelson_Lines_0825.geojson" layer="Nelson_Lines_0825" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:25">
+        <Vector dataset="Collingwood_Lines_0825.geojson" layer="Collingwood_Lines_0825" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:30">
+        <Vector dataset="Nelson_Lines_0830.geojson" layer="Nelson_Lines_0830" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0830.geojson" layer="Nelson_10min_0830" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:30">
+        <Vector dataset="Collingwood_Lines_0830.geojson" layer="Collingwood_Lines_0830" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0830.geojson" layer="Collingwood_10min_0830" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:35">
+        <Vector dataset="Nelson_Lines_0835.geojson" layer="Nelson_Lines_0835" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:35">
+        <Vector dataset="Collingwood_Lines_0835.geojson" layer="Collingwood_Lines_0835" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:40">
+        <Vector dataset="Nelson_Lines_0840.geojson" layer="Nelson_Lines_0840" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0840.geojson" layer="Nelson_10min_0840" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:40">
+        <Vector dataset="Collingwood_Lines_0840.geojson" layer="Collingwood_Lines_0840" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0840.geojson" layer="Collingwood_10min_0840" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:45">
+        <Vector dataset="Nelson_Lines_0845.geojson" layer="Nelson_Lines_0845" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:45">
+        <Vector dataset="Collingwood_Lines_0845.geojson" layer="Collingwood_Lines_0845" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:50">
+        <Vector dataset="Nelson_Lines_0850.geojson" layer="Nelson_Lines_0850" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0850.geojson" layer="Nelson_10min_0850" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:50">
+        <Vector dataset="Collingwood_Lines_0850.geojson" layer="Collingwood_Lines_0850" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0850.geojson" layer="Collingwood_10min_0850" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 08:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 08:55">
+        <Vector dataset="Nelson_Lines_0855.geojson" layer="Nelson_Lines_0855" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 08:55">
+        <Vector dataset="Collingwood_Lines_0855.geojson" layer="Collingwood_Lines_0855" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:00">
+        <Vector dataset="Nelson_Lines_0900.geojson" layer="Nelson_Lines_0900" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0900.geojson" layer="Nelson_10min_0900" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_0900.geojson" layer="Nelson_Hourly_0900" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:00">
+        <Vector dataset="Collingwood_Lines_0900.geojson" layer="Collingwood_Lines_0900" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0900.geojson" layer="Collingwood_10min_0900" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_0900.geojson" layer="Collingwood_Hourly_0900" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:05">
+        <Vector dataset="Nelson_Lines_0905.geojson" layer="Nelson_Lines_0905" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:05">
+        <Vector dataset="Collingwood_Lines_0905.geojson" layer="Collingwood_Lines_0905" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:10">
+        <Vector dataset="Nelson_Lines_0910.geojson" layer="Nelson_Lines_0910" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0910.geojson" layer="Nelson_10min_0910" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:10">
+        <Vector dataset="Collingwood_Lines_0910.geojson" layer="Collingwood_Lines_0910" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0910.geojson" layer="Collingwood_10min_0910" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:15">
+        <Vector dataset="Nelson_Lines_0915.geojson" layer="Nelson_Lines_0915" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:15">
+        <Vector dataset="Collingwood_Lines_0915.geojson" layer="Collingwood_Lines_0915" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:20">
+        <Vector dataset="Nelson_Lines_0920.geojson" layer="Nelson_Lines_0920" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0920.geojson" layer="Nelson_10min_0920" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:20">
+        <Vector dataset="Collingwood_Lines_0920.geojson" layer="Collingwood_Lines_0920" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0920.geojson" layer="Collingwood_10min_0920" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:25">
+        <Vector dataset="Nelson_Lines_0925.geojson" layer="Nelson_Lines_0925" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:25">
+        <Vector dataset="Collingwood_Lines_0925.geojson" layer="Collingwood_Lines_0925" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:30">
+        <Vector dataset="Nelson_Lines_0930.geojson" layer="Nelson_Lines_0930" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0930.geojson" layer="Nelson_10min_0930" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:30">
+        <Vector dataset="Collingwood_Lines_0930.geojson" layer="Collingwood_Lines_0930" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0930.geojson" layer="Collingwood_10min_0930" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:35">
+        <Vector dataset="Nelson_Lines_0935.geojson" layer="Nelson_Lines_0935" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:35">
+        <Vector dataset="Collingwood_Lines_0935.geojson" layer="Collingwood_Lines_0935" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:40">
+        <Vector dataset="Nelson_Lines_0940.geojson" layer="Nelson_Lines_0940" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0940.geojson" layer="Nelson_10min_0940" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:40">
+        <Vector dataset="Collingwood_Lines_0940.geojson" layer="Collingwood_Lines_0940" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0940.geojson" layer="Collingwood_10min_0940" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:45">
+        <Vector dataset="Nelson_Lines_0945.geojson" layer="Nelson_Lines_0945" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:45">
+        <Vector dataset="Collingwood_Lines_0945.geojson" layer="Collingwood_Lines_0945" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:50">
+        <Vector dataset="Nelson_Lines_0950.geojson" layer="Nelson_Lines_0950" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_0950.geojson" layer="Nelson_10min_0950" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:50">
+        <Vector dataset="Collingwood_Lines_0950.geojson" layer="Collingwood_Lines_0950" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_0950.geojson" layer="Collingwood_10min_0950" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 09:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 09:55">
+        <Vector dataset="Nelson_Lines_0955.geojson" layer="Nelson_Lines_0955" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 09:55">
+        <Vector dataset="Collingwood_Lines_0955.geojson" layer="Collingwood_Lines_0955" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:00">
+        <Vector dataset="Nelson_Lines_1000.geojson" layer="Nelson_Lines_1000" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1000.geojson" layer="Nelson_10min_1000" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_1000.geojson" layer="Nelson_Hourly_1000" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:00">
+        <Vector dataset="Collingwood_Lines_1000.geojson" layer="Collingwood_Lines_1000" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1000.geojson" layer="Collingwood_10min_1000" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_1000.geojson" layer="Collingwood_Hourly_1000" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:05">
+        <Vector dataset="Nelson_Lines_1005.geojson" layer="Nelson_Lines_1005" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:05">
+        <Vector dataset="Collingwood_Lines_1005.geojson" layer="Collingwood_Lines_1005" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:10">
+        <Vector dataset="Nelson_Lines_1010.geojson" layer="Nelson_Lines_1010" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1010.geojson" layer="Nelson_10min_1010" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:10">
+        <Vector dataset="Collingwood_Lines_1010.geojson" layer="Collingwood_Lines_1010" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1010.geojson" layer="Collingwood_10min_1010" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:15">
+        <Vector dataset="Nelson_Lines_1015.geojson" layer="Nelson_Lines_1015" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:15">
+        <Vector dataset="Collingwood_Lines_1015.geojson" layer="Collingwood_Lines_1015" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:20">
+        <Vector dataset="Nelson_Lines_1020.geojson" layer="Nelson_Lines_1020" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1020.geojson" layer="Nelson_10min_1020" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:20">
+        <Vector dataset="Collingwood_Lines_1020.geojson" layer="Collingwood_Lines_1020" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1020.geojson" layer="Collingwood_10min_1020" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:25">
+        <Vector dataset="Nelson_Lines_1025.geojson" layer="Nelson_Lines_1025" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:25">
+        <Vector dataset="Collingwood_Lines_1025.geojson" layer="Collingwood_Lines_1025" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:30">
+        <Vector dataset="Nelson_Lines_1030.geojson" layer="Nelson_Lines_1030" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1030.geojson" layer="Nelson_10min_1030" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:30">
+        <Vector dataset="Collingwood_Lines_1030.geojson" layer="Collingwood_Lines_1030" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1030.geojson" layer="Collingwood_10min_1030" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:35">
+        <Vector dataset="Nelson_Lines_1035.geojson" layer="Nelson_Lines_1035" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:35">
+        <Vector dataset="Collingwood_Lines_1035.geojson" layer="Collingwood_Lines_1035" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:40">
+        <Vector dataset="Nelson_Lines_1040.geojson" layer="Nelson_Lines_1040" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1040.geojson" layer="Nelson_10min_1040" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:40">
+        <Vector dataset="Collingwood_Lines_1040.geojson" layer="Collingwood_Lines_1040" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1040.geojson" layer="Collingwood_10min_1040" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:45">
+        <Vector dataset="Nelson_Lines_1045.geojson" layer="Nelson_Lines_1045" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:45">
+        <Vector dataset="Collingwood_Lines_1045.geojson" layer="Collingwood_Lines_1045" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:50">
+        <Vector dataset="Nelson_Lines_1050.geojson" layer="Nelson_Lines_1050" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1050.geojson" layer="Nelson_10min_1050" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:50">
+        <Vector dataset="Collingwood_Lines_1050.geojson" layer="Collingwood_Lines_1050" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1050.geojson" layer="Collingwood_10min_1050" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 10:55">
+    <IfLayerOn layerId="Nelson 1995-12-12 10:55">
+        <Vector dataset="Nelson_Lines_1055.geojson" layer="Nelson_Lines_1055" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 10:55">
+        <Vector dataset="Collingwood_Lines_1055.geojson" layer="Collingwood_Lines_1055" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:00">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:00">
+        <Vector dataset="Nelson_Lines_1100.geojson" layer="Nelson_Lines_1100" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1100.geojson" layer="Nelson_10min_1100" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Nelson_Hourly_1100.geojson" layer="Nelson_Hourly_1100" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#bd1b44,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:00">
+        <Vector dataset="Collingwood_Lines_1100.geojson" layer="Collingwood_Lines_1100" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1100.geojson" layer="Collingwood_10min_1100" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+        <VectorLabel dataset="Collingwood_Hourly_1100.geojson" layer="Collingwood_Hourly_1100" georeferencingId="georeferenced" ogrStyleString='LABEL(t:{time_str},c:#0d0d8e,s:24pt,p:4,dx:7mm,bo:1)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:05">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:05">
+        <Vector dataset="Nelson_Lines_1105.geojson" layer="Nelson_Lines_1105" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:05">
+        <Vector dataset="Collingwood_Lines_1105.geojson" layer="Collingwood_Lines_1105" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:10">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:10">
+        <Vector dataset="Nelson_Lines_1110.geojson" layer="Nelson_Lines_1110" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1110.geojson" layer="Nelson_10min_1110" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:10">
+        <Vector dataset="Collingwood_Lines_1110.geojson" layer="Collingwood_Lines_1110" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1110.geojson" layer="Collingwood_10min_1110" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:15">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:15">
+        <Vector dataset="Nelson_Lines_1115.geojson" layer="Nelson_Lines_1115" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:15">
+        <Vector dataset="Collingwood_Lines_1115.geojson" layer="Collingwood_Lines_1115" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:20">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:20">
+        <Vector dataset="Nelson_Lines_1120.geojson" layer="Nelson_Lines_1120" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1120.geojson" layer="Nelson_10min_1120" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:20">
+        <Vector dataset="Collingwood_Lines_1120.geojson" layer="Collingwood_Lines_1120" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1120.geojson" layer="Collingwood_10min_1120" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:25">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:25">
+        <Vector dataset="Nelson_Lines_1125.geojson" layer="Nelson_Lines_1125" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:25">
+        <Vector dataset="Collingwood_Lines_1125.geojson" layer="Collingwood_Lines_1125" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:30">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:30">
+        <Vector dataset="Nelson_Lines_1130.geojson" layer="Nelson_Lines_1130" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1130.geojson" layer="Nelson_10min_1130" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:30">
+        <Vector dataset="Collingwood_Lines_1130.geojson" layer="Collingwood_Lines_1130" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1130.geojson" layer="Collingwood_10min_1130" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:35">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:35">
+        <Vector dataset="Nelson_Lines_1135.geojson" layer="Nelson_Lines_1135" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:35">
+        <Vector dataset="Collingwood_Lines_1135.geojson" layer="Collingwood_Lines_1135" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:40">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:40">
+        <Vector dataset="Nelson_Lines_1140.geojson" layer="Nelson_Lines_1140" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+        <Vector dataset="Nelson_10min_1140.geojson" layer="Nelson_10min_1140" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#bd1b44,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Nelson" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:40">
+        <Vector dataset="Collingwood_Lines_1140.geojson" layer="Collingwood_Lines_1140" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+        <Vector dataset="Collingwood_10min_1140.geojson" layer="Collingwood_10min_1140" georeferencingId="georeferenced" ogrStyleString='SYMBOL(c:#0d0d8e,s:2,id:"ogr-sym-3")'>
+                <LogicalStructure displayLayerName="Collingwood" fieldToDisplay="time"/>
+        </Vector>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:45">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:45">
+        <Vector dataset="Nelson_Lines_1145.geojson" layer="Nelson_Lines_1145" georeferencingId="georeferenced" ogrStyleString='PEN(c:#bd1b44,w:5px)'/>
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:45">
+        <Vector dataset="Collingwood_Lines_1145.geojson" layer="Collingwood_Lines_1145" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+
+<IfLayerOn layerId="1995-12-12 11:50">
+    <IfLayerOn layerId="Nelson 1995-12-12 11:50">
+    </IfLayerOn>
+
+    <IfLayerOn layerId="Collingwood 1995-12-12 11:50">
+        <Vector dataset="Collingwood_Lines_1150.geojson" layer="Collingwood_Lines_1150" georeferencingId="georeferenced" ogrStyleString='PEN(c:#0d0d8e,w:5px)'/>
+    </IfLayerOn></IfLayerOn>
+            </IfLayerOn>
+        </Content>
+    </Page>
+
+<Outline>
+    <OutlineItem name="COMEX SERIAL 16D">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818744400000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="INTEND WIDE AREA SEARCH AS PREVIOUS SERIAL">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818744460000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="BRIEFING HINTED THAT TARGET TO SE">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818744520000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="NO CONTACTS YET, SWITCHING TO SCALE 7">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818745720000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="INVESTIGATING TRACK 14">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818748720000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="POSSUB TRACK 14">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818749320000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="DROP TRACK 14 BIOLOGIC">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818750520000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="HEADING TO RV">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818761980000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="SUSPECT PLAYMATE NOT PRESENT">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818762040000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="SUSPECTED DETECTION OF RED">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818762220000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="CONFIRMED. OBTAIN SOLUTION">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818762580000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="SUSPECT TARGET ZIG">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818763180000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="PORT DETECTION, 16 HZ">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818763240000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="ENTER TRAIL">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818764140000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="TARGET ZIG DETECTED">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818764620000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="FINEX CALLED, ENTER TRANSITION">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818767140000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="ENTERING PLOT-LOCK TRANSITION">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818767200000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="ACTIVE PLOT-LOCK SUCCESSFUL">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818768220000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+    <OutlineItem name="RX CONGRATS ON UWT">
+        <Actions>
+            <JavascriptAction>goToNearestTimestep(818768460000);</JavascriptAction>
+        </Actions>
+    </OutlineItem>
+</Outline>
+
+</PDFComposition>
