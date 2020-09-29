@@ -473,6 +473,7 @@
         }
 
         // initialize the media object to read pageWindowRect, because AcrobatJS...
+        console.println(this.media);
         //compare pixel width of application page window area, the current zoom level,
         // and the page width in inches to get user display DPI.  Round to clean up FP errors; but +/- 1 PPI isn't the end of the world.
         userDPI  = Math.round((doc.pageWindowRect[2] - doc.pageWindowRect[0]) / refView.pageViewZoom / pWidth);
